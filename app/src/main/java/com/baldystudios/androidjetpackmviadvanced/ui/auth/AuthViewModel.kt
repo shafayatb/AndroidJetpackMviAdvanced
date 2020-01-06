@@ -1,34 +1,73 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.auth
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.LoginResponse
-import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.RegistrationResponse
+import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.repository.auth.AuthRepository
-import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
+import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
+import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.*
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthViewState
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.RegistrationFields
+import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import javax.inject.Inject
 
 class AuthViewModel
 @Inject
 constructor(
     val authRepository: AuthRepository
-) : ViewModel() {
+) : BaseViewModel<AuthStateEvent, AuthViewState>() {
 
-    fun testLogin(): LiveData<GenericApiResponse<LoginResponse>> {
-        return authRepository.testLoginRequest(
-            "",
-            ""
-        )
+
+    override fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
+
+        return when (stateEvent) {
+
+            is LoginAttemptEvent -> {
+                AbsentLiveData.create()
+            }
+
+            is RegisterAttemptEvent -> {
+                AbsentLiveData.create()
+            }
+
+            is CheckPreviousAuthEvent -> {
+                AbsentLiveData.create()
+            }
+        }
+
     }
 
-    fun testRegistration(): LiveData<GenericApiResponse<RegistrationResponse>> {
-        val userMap = LinkedHashMap<String, String>()
-        userMap["email"] = ""
-        userMap["username"] = ""
-        userMap["password"] = ""
-        userMap["password2"] = ""
+    fun setRegistrationFields(registrationFields: RegistrationFields) {
+        val update = getCurrentViewStateOrNew()
+        if (update.registrationFields == registrationFields) {
+            return
+        }
+        update.registrationFields = registrationFields
+        _viewState.value = update
+    }
 
-        return authRepository.testRegistrationRequest(userMap)
+    fun setLoginFields(loginFields: LoginFields) {
+        val update = getCurrentViewStateOrNew()
+        if (update.loginFields == loginFields) {
+            return
+        }
+        update.loginFields = loginFields
+        _viewState.value = update
+    }
+
+    fun setAuthToken(authToken: AuthToken) {
+        val update = getCurrentViewStateOrNew()
+        if (update.authToken == authToken) {
+            return
+        }
+        update.authToken = authToken
+        _viewState.value = update
+    }
+
+    override fun initNewViewState(): AuthViewState {
+        return AuthViewState()
     }
 
 }
