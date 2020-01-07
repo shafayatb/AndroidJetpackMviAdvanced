@@ -3,6 +3,8 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.lifecycle.Observer
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
@@ -10,6 +12,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.auth.AuthActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +37,10 @@ class MainActivity : BaseActivity() {
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun displayProgressBar(bool: Boolean) {
+        progress_bar.visibility = if (bool) VISIBLE else GONE
     }
 
 }

@@ -8,7 +8,7 @@ class LoginResponse(
     var response: String,
 
     @Json(name = "error_message")
-    var errorMessage: String,
+    var error_message: String,
 
     @Json(name = "token")
     var token: String,
@@ -21,6 +21,6 @@ class LoginResponse(
 
 ) {
     override fun toString(): String {
-        return "LoginResponse(response='$response', errorMessage='$errorMessage', token='$token', pk=$pk, email='$email')"
+        return "LoginResponse(response='$response', errorMessage='$error_message', token='$token', pk=$pk, email='$email')"
     }
 }

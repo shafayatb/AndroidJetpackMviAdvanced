@@ -50,7 +50,7 @@ constructor(
                 Log.d(TAG, "handleApiSuccessResponse: $response")
 
                 if (response.body.response == GENERIC_AUTH_ERROR) {
-                    onErrorReturn(response.body.errorMessage, true, false)
+                    onErrorReturn(response.body.error_message, true, false)
                 }
 
                 onCompleteJob(
