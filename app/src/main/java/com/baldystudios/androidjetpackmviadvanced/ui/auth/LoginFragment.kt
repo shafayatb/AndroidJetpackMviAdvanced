@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import kotlinx.android.synthetic.main.fragment_login.*
 
@@ -30,6 +30,10 @@ class LoginFragment : BaseAuthFragment() {
 
         subscribeObservers()
 
+        login_button.setOnClickListener {
+            login()
+        }
+
     }
 
 
@@ -40,6 +44,17 @@ class LoginFragment : BaseAuthFragment() {
                 loginFields.login_password?.let { password -> input_password.setText(password) }
             }
         })
+    }
+
+    fun login() {
+
+        viewModel.setStateEvent(
+            AuthStateEvent.LoginAttemptEvent(
+                input_email.text.toString(),
+                input_password.text.toString()
+            )
+        )
+
     }
 
     override fun onDestroyView() {

@@ -25,11 +25,19 @@ constructor(
         return when (stateEvent) {
 
             is LoginAttemptEvent -> {
-                AbsentLiveData.create()
+                authRepository.attemptLogin(
+                    stateEvent.email,
+                    stateEvent.password
+                )
             }
 
             is RegisterAttemptEvent -> {
-                AbsentLiveData.create()
+                val userMap = LinkedHashMap<String, String>()
+                userMap["email"] = stateEvent.email
+                userMap["username"] = stateEvent.userName
+                userMap["password"] = stateEvent.password
+                userMap["password2"] = stateEvent.confirm_password
+                authRepository.attemptRegistration(userMap)
             }
 
             is CheckPreviousAuthEvent -> {

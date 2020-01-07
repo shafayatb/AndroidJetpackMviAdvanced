@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
+import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.MainActivity
 import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -29,13 +30,48 @@ class AuthActivity : BaseActivity() {
 
     fun subscribeObservers() {
 
+        viewModel.dataState.observe(this, Observer { dataState ->
+
+            dataState.data?.let { data ->
+                data.data?.let { event ->
+                    event.getContentIfNotHandled()?.let {
+                        it.authToken?.let { authToken ->
+                            Log.d(TAG, "AuthActivity, DataState: $authToken")
+                            viewModel.setAuthToken(authToken)
+                        }
+                    }
+                }
+
+                data.response?.let { event ->
+                    event.getContentIfNotHandled()?.let { response ->
+                        when (response.responseType) {
+
+                            is Dialog -> {
+
+                            }
+
+                            is Toast -> {
+
+                            }
+
+                            is None -> {
+                                Log.e(TAG, "AuthActivity, Response: ${response.message}")
+                            }
+
+                        }
+                    }
+                }
+            }
+
+        })
+
         viewModel.viewState.observe(this, Observer {
-            it.authToken?.let {authToken->
+            it.authToken?.let { authToken ->
                 sessionManager.login(authToken)
             }
         })
 
-        sessionManager.cachedToken.observe(this, Observer {authToken->
+        sessionManager.cachedToken.observe(this, Observer { authToken ->
 
             Log.d(TAG, "AuthActivity: subscribeObservers: AuthToken $authToken")
 
