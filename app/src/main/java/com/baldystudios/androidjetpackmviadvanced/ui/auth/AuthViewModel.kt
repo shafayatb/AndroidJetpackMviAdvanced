@@ -32,12 +32,13 @@ constructor(
             }
 
             is RegisterAttemptEvent -> {
-                val userMap = LinkedHashMap<String, String>()
-                userMap["email"] = stateEvent.email
-                userMap["username"] = stateEvent.userName
-                userMap["password"] = stateEvent.password
-                userMap["password2"] = stateEvent.confirm_password
-                authRepository.attemptRegistration(userMap)
+
+                authRepository.attemptRegistration(
+                    stateEvent.email,
+                    stateEvent.userName,
+                    stateEvent.password,
+                    stateEvent.confirm_password
+                )
             }
 
             is CheckPreviousAuthEvent -> {
@@ -74,8 +75,17 @@ constructor(
         _viewState.value = update
     }
 
+    fun cancelActiveJobs(){
+        authRepository.cancelActiveJobs()
+    }
+
     override fun initNewViewState(): AuthViewState {
         return AuthViewState()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
     }
 
 }
