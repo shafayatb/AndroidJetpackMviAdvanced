@@ -57,6 +57,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$rootProject.ktxVersion"
     implementation "androidx.legacy:legacy-support-v4:$rootProject.androidxVersion"
     implementation "androidx.constraintlayout:constraintlayout:$rootProject.constLayoutVersion"
+    implementation "androidx.webkit:webkit:$rootProject.webkitVersion"
 
     implementation "com.google.android.material:material:$rootProject.materialVersion"
 
