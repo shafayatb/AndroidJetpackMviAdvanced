@@ -10,7 +10,6 @@ import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.RegistrationFields
-import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import javax.inject.Inject
 
 class AuthViewModel
@@ -42,7 +41,7 @@ constructor(
             }
 
             is CheckPreviousAuthEvent -> {
-                AbsentLiveData.create()
+                authRepository.checkPreviousAuthUser()
             }
         }
 
@@ -75,7 +74,7 @@ constructor(
         _viewState.value = update
     }
 
-    fun cancelActiveJobs(){
+    fun cancelActiveJobs() {
         authRepository.cancelActiveJobs()
     }
 

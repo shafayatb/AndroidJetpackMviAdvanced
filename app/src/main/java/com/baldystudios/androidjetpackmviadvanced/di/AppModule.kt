@@ -1,6 +1,8 @@
 package com.baldystudios.androidjetpackmviadvanced.di
 
 import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
@@ -9,6 +11,7 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.AppDatabase.Compan
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
 import com.baldystudios.androidjetpackmviadvanced.util.Constants
 import com.baldystudios.androidjetpackmviadvanced.util.LiveDataCallAdapterFactory
+import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
@@ -64,6 +67,18 @@ class AppModule{
     fun provideGlideInstance(application: Application, requestOptions: RequestOptions): RequestManager {
         return Glide.with(application)
             .setDefaultRequestOptions(requestOptions)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferences(application: Application):SharedPreferences{
+        return application.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSharedPrefsEditor(sharedPreferences: SharedPreferences):SharedPreferences.Editor{
+        return sharedPreferences.edit()
     }
 
 }

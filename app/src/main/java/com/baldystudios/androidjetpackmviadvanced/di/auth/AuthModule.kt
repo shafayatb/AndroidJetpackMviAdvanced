@@ -1,5 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.di.auth
 
+import android.content.SharedPreferences
 import com.baldystudios.androidjetpackmviadvanced.api.auth.OpenApiAuthService
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
@@ -10,7 +11,7 @@ import dagger.Provides
 import retrofit2.Retrofit
 
 @Module
-class AuthModule{
+class AuthModule {
 
 
     @AuthScope
@@ -27,13 +28,17 @@ class AuthModule{
         sessionManager: SessionManager,
         authTokenDao: AuthTokenDao,
         accountPropertiesDao: AccountPropertiesDao,
-        openApiAuthService: OpenApiAuthService
-        ): AuthRepository {
+        openApiAuthService: OpenApiAuthService,
+        sharedPreferences: SharedPreferences,
+        sharedPrefsEditor: SharedPreferences.Editor
+    ): AuthRepository {
         return AuthRepository(
             authTokenDao,
             accountPropertiesDao,
             openApiAuthService,
-            sessionManager
+            sessionManager,
+            sharedPreferences,
+            sharedPrefsEditor
         )
     }
 
