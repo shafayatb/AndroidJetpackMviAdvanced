@@ -1,0 +1,3 @@
+package com.baldystudios.androidjetpackmviadvanced.di
+
+interface Injectable
