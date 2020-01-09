@@ -4,6 +4,10 @@ import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthFragmentBuildersMo
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthModule
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthViewModelModule
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainFragmentBuildersModule
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainModule
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainViewModelModule
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.AuthActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.main.MainActivity
 import dagger.Module
@@ -18,7 +22,10 @@ abstract class ActivityBuildersModule {
     )
     abstract fun contributeAuthActivity(): AuthActivity
 
-    @ContributesAndroidInjector
+    @MainScope
+    @ContributesAndroidInjector(
+        modules = [MainModule::class, MainFragmentBuildersModule::class, MainViewModelModule::class]
+    )
     abstract fun contributeMainActivity(): MainActivity
 
 }
