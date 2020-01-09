@@ -16,6 +16,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.account.ChangePassword
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.UpdateAccountFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.UpdateBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.ViewBlogFragment
+import com.baldystudios.androidjetpackmviadvanced.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController.*
 import com.baldystudios.androidjetpackmviadvanced.util.setUpNavigation
@@ -44,13 +45,24 @@ class MainActivity : BaseActivity(),
 
         setupActionbar()
 
+        setUpBottomNavigationView(savedInstanceState)
+
+        subscribeObservers()
+    }
+
+    private fun setUpBottomNavigationView(savedInstanceState: Bundle?) {
         bottomNavigationView = bottom_navigation_view
         bottomNavigationView.setUpNavigation(bottomNavController, this)
         if (savedInstanceState == null) {
+            bottomNavController.setUpBottomNavigationBackStack(null)
             bottomNavController.onNavigationItemSelected()
+        } else {
+            (savedInstanceState[BOTTOM_NAV_BACKSTACK_KEY] as IntArray?)?.let { items ->
+                val backStack = BackStack()
+                backStack.addAll(items.toTypedArray())
+                bottomNavController.setUpBottomNavigationBackStack(backStack)
+            }
         }
-
-        subscribeObservers()
     }
 
     private fun setupActionbar() {
@@ -74,6 +86,14 @@ class MainActivity : BaseActivity(),
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putIntArray(
+            BOTTOM_NAV_BACKSTACK_KEY,
+            bottomNavController.navigationBackStack.toIntArray()
+        )
+        super.onSaveInstanceState(outState)
     }
 
     override fun displayProgressBar(bool: Boolean) {

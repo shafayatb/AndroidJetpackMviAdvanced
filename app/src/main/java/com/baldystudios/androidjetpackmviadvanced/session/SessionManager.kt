@@ -26,7 +26,7 @@ constructor(
     val application: Application
 ) {
 
-    private val TAG: String = "App Debug"
+    private val TAG: String = "AppDebug"
 
     private val _cachedToken = MutableLiveData<AuthToken>()
 
