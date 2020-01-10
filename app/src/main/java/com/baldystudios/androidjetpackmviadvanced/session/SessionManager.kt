@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -33,47 +34,42 @@ constructor(
     val cachedToken: LiveData<AuthToken>
         get() = _cachedToken
 
-    fun login(newValue: AuthToken) {
+    fun login(newValue: AuthToken){
         setValue(newValue)
     }
 
-    fun logout() {
-        Log.d(TAG, "logout...")
+    fun logout(){
+        Log.d(TAG, "logout: ")
 
-        GlobalScope.launch(IO) {
 
+        CoroutineScope(IO).launch{
             var errorMessage: String? = null
-
-            try {
-
-                cachedToken.value!!.account_pk?.let {
-                    authTokenDao.nullifyToken(it)
-                }
-
-            } catch (e: CancellationException) {
+            try{
+                _cachedToken.value!!.account_pk?.let { authTokenDao.nullifyToken(it)
+                } ?: throw CancellationException("Token Error. Logging out user.")
+            }catch (e: CancellationException) {
                 Log.e(TAG, "logout: ${e.message}")
                 errorMessage = e.message
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 Log.e(TAG, "logout: ${e.message}")
-                errorMessage = e.message + "\n" + e.message
-            } finally {
-                errorMessage?.let {
-                    Log.e(TAG, "logout: $errorMessage")
+                errorMessage = errorMessage + "\n" + e.message
+            }
+            finally {
+                errorMessage?.let{
+                    Log.e(TAG, "logout: ${errorMessage}" )
                 }
                 Log.d(TAG, "logout: finally")
                 setValue(null)
             }
-
         }
     }
 
-    private fun setValue(newValue: AuthToken?) {
+    fun setValue(newValue: AuthToken?) {
         GlobalScope.launch(Main) {
-
             if (_cachedToken.value != newValue) {
                 _cachedToken.value = newValue
             }
-
         }
     }
 

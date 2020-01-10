@@ -18,21 +18,19 @@ class ViewBlogFragment : BaseBlogFragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setHasOptionsMenu(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-
+        // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
         if(isAuthorOfBlogPost){
-            inflater.inflate(R.menu.edit_view_menu,menu)
+            inflater.inflate(R.menu.edit_view_menu, menu)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
+        // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
         if(isAuthorOfBlogPost){
             when(item.itemId){
@@ -41,7 +39,6 @@ class ViewBlogFragment : BaseBlogFragment(){
                     return true
                 }
             }
-
         }
         return super.onOptionsItemSelected(item)
     }

@@ -21,9 +21,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 
 
-abstract class NetworkBoundResource<ResponseObject, ViewStateType>(
-    isNetworkAvailable: Boolean,
-    isNetworkRequest: Boolean
+abstract class NetworkBoundResource<ResponseObject, ViewStateType>
+    (
+    isNetworkAvailable: Boolean, // is their a network connection?
+    isNetworkRequest: Boolean // is this a network request?
 ) {
 
     private val TAG: String = "AppDebug"
@@ -36,15 +37,18 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>(
         setJob(initNewJob())
         setValue(DataState.loading(isLoading = true, cachedData = null))
 
-        if (isNetworkRequest) {
-            if (isNetworkAvailable) {
+        if(isNetworkRequest){
+            if(isNetworkAvailable){
                 coroutineScope.launch {
 
+                    // simulate a network delay for testing
                     delay(TESTING_NETWORK_DELAY)
 
-                    withContext(Main) {
+                    withContext(Main){
+
+                        // make network call
                         val apiResponse = createCall()
-                        result.addSource(apiResponse) { response ->
+                        result.addSource(apiResponse){ response ->
                             result.removeSource(apiResponse)
 
                             coroutineScope.launch {
@@ -52,135 +56,97 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>(
                             }
                         }
                     }
-
                 }
 
-                GlobalScope.launch(IO) {
+                GlobalScope.launch(IO){
                     delay(NETWORK_TIMEOUT)
 
-                    if (!job.isCompleted) {
-                        Log.e(TAG, "NetworkBoundResource: JOB NETWORK TIMEOUT")
-                        job.cancel(CancellationException(UNABLE_TO_RESOLVE_HOST))
+                    if(!job.isCompleted){
+                        Log.e(TAG, "NetworkBoundResource: JOB NETWORK TIMEOUT." )
+                        job.cancel(CancellationException(ErrorHandling.UNABLE_TO_RESOLVE_HOST))
                     }
                 }
-
-            } else {
-                onErrorReturn(
-                    UNABLE_TODO_OPERATION_WO_INTERNET,
-                    shouldUseDialog = true,
-                    shouldeUseToast = false
-                )
             }
-        } else {
+            else{
+                onErrorReturn(ErrorHandling.UNABLE_TODO_OPERATION_WO_INTERNET, shouldUseDialog = true, shouldUseToast = false)
+            }
+        }
+        else{
             coroutineScope.launch {
                 delay(TESTING_CACHE_DELAY)
-
+                // View data from cache only and return
                 createCacheRequestAndReturn()
             }
         }
-
-
     }
 
+    suspend fun handleNetworkCall(response: GenericApiResponse<ResponseObject>){
 
-    suspend fun handleNetworkCall(response: GenericApiResponse<ResponseObject>?) {
-        when (response) {
-
-            is ApiSuccessResponse -> {
+        when(response){
+            is ApiSuccessResponse ->{
                 handleApiSuccessResponse(response)
             }
-
-            is ApiErrorResponse -> {
+            is ApiErrorResponse ->{
                 Log.e(TAG, "NetworkBoundResource: ${response.errorMessage}")
                 onErrorReturn(response.errorMessage, true, false)
             }
-
-            is ApiEmptyResponse -> {
-                Log.e(TAG, "NetworkBoundResource: Request returned nothing (HTTP 204")
-                onErrorReturn(ERROR_UNKNOWN, true, false)
+            is ApiEmptyResponse ->{
+                Log.e(TAG, "NetworkBoundResource: Request returned NOTHING (HTTP 204).")
+                onErrorReturn("HTTP 204. Returned NOTHING.", true, false)
             }
-
         }
     }
 
-    fun onCompleteJob(dataState: DataState<ViewStateType>) {
-
+    fun onCompleteJob(dataState: DataState<ViewStateType>){
         GlobalScope.launch(Main) {
             job.complete()
             setValue(dataState)
         }
-
     }
 
-    private fun setValue(dataState: DataState<ViewStateType>) {
-        result.value = dataState
-    }
-
-    fun onErrorReturn(errorMessage: String?, shouldUseDialog: Boolean, shouldeUseToast: Boolean) {
-
+    fun onErrorReturn(errorMessage: String?, shouldUseDialog: Boolean, shouldUseToast: Boolean){
         var msg = errorMessage
         var useDialog = shouldUseDialog
         var responseType: ResponseType = ResponseType.None()
-
-        if (msg == null) {
+        if(msg == null){
             msg = ERROR_UNKNOWN
-        } else if (ErrorHandling.isNetworkError(msg)) {
+        }
+        else if(ErrorHandling.isNetworkError(msg)){
             msg = ERROR_CHECK_NETWORK_CONNECTION
             useDialog = false
         }
-
-        if (shouldeUseToast) {
+        if(shouldUseToast){
             responseType = ResponseType.Toast()
         }
-
-        if (useDialog) {
+        if(useDialog){
             responseType = ResponseType.Dialog()
         }
 
-        onCompleteJob(
-            DataState.error(
-                response = Response(
-                    message = msg,
-                    responseType = responseType
-                )
-            )
-        )
+        onCompleteJob(DataState.error(Response(msg, responseType)))
+    }
 
+    fun setValue(dataState: DataState<ViewStateType>){
+        result.value = dataState
     }
 
     @UseExperimental(InternalCoroutinesApi::class)
-    private fun initNewJob(): Job {
-
-        Log.d(TAG, "initNewJob: called...")
-
-        job = Job()
-        job.invokeOnCompletion(
-            onCancelling = true,
-            invokeImmediately = true,
-            handler = object : CompletionHandler {
-
-                override fun invoke(cause: Throwable?) {
-                    if (job.isCancelled) {
-                        Log.e(TAG, "NetworkBoundResource: Job has been cancelled.")
-                        cause?.let {
-                            onErrorReturn(
-                                it.message,
-                                shouldUseDialog = false,
-                                shouldeUseToast = true
-                            )
-                        } ?: onErrorReturn(
-                            ERROR_UNKNOWN,
-                            shouldUseDialog = false,
-                            shouldeUseToast = true
-                        )
-                    } else if (job.isCompleted) {
-                        Log.e(TAG, "NetworkBoundResource: Job has been completed...")
-
-                    }
+    private fun initNewJob(): Job{
+        Log.d(TAG, "initNewJob: called.")
+        job = Job() // create new job
+        job.invokeOnCompletion(onCancelling = true, invokeImmediately = true, handler = object: CompletionHandler{
+            override fun invoke(cause: Throwable?) {
+                if(job.isCancelled){
+                    Log.e(TAG, "NetworkBoundResource: Job has been cancelled.")
+                    cause?.let{
+                        onErrorReturn(it.message, false, true)
+                    }?: onErrorReturn("Unknown error.", false, true)
                 }
-
-            })
-
+                else if(job.isCompleted){
+                    Log.e(TAG, "NetworkBoundResource: Job has been completed.")
+                    // Do nothing? Should be handled already
+                }
+            }
+        })
         coroutineScope = CoroutineScope(IO + job)
         return job
     }
