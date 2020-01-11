@@ -4,14 +4,10 @@ import android.os.Bundle
 import android.view.*
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import kotlinx.android.synthetic.main.fragment_account.*
-import javax.inject.Inject
 
-class AccountFragment : BaseAccountFragment(){
+class AccountFragment : BaseAccountFragment() {
 
-    @Inject
-    lateinit var sessionManager: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,12 +21,12 @@ class AccountFragment : BaseAccountFragment(){
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
-        change_password.setOnClickListener{
+        change_password.setOnClickListener {
             findNavController().navigate(R.id.action_accountFragment_to_changePasswordFragment)
         }
 
         logout_button.setOnClickListener {
-            sessionManager.logout()
+            viewModel.logout()
         }
     }
 
@@ -40,8 +36,8 @@ class AccountFragment : BaseAccountFragment(){
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.edit ->{
+        when (item.itemId) {
+            R.id.edit -> {
                 findNavController().navigate(R.id.action_accountFragment_to_updateAccountFragment)
                 return true
             }
