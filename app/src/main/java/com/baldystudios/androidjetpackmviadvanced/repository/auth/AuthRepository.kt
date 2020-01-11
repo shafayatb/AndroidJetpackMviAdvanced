@@ -20,7 +20,6 @@ import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.RegistrationFields
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
-import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_SAVE_ACCOUNT_PROPERTIES
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_SAVE_AUTH_TOKEN
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.GENERIC_AUTH_ERROR
 import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
@@ -44,17 +43,18 @@ constructor(
 
     private var repositoryJob: Job? = null
 
-    fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>>{
+    fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
 
         val loginFieldErrors = LoginFields(email, password).isValidForLogin()
-        if(!loginFieldErrors.equals(LoginFields.LoginError.none())){
+        if (!loginFieldErrors.equals(LoginFields.LoginError.none())) {
             return returnErrorResponse(loginFieldErrors, ResponseType.Dialog())
         }
 
-        return object: NetworkBoundResource<LoginResponse, AuthViewState>(
+        return object : NetworkBoundResource<LoginResponse, Any, AuthViewState>(
             sessionManager.isConnectedToTheInternet(),
-            true
-        ){
+            true,
+            false
+        ) {
 
             // not used in this case
             override suspend fun createCacheRequestAndReturn() {
@@ -65,7 +65,7 @@ constructor(
                 Log.d(TAG, "handleApiSuccessResponse: ${response}")
 
                 // Incorrect login credentials counts as a 200 response from server, so need to handle that
-                if(response.body.response.equals(GENERIC_AUTH_ERROR)){
+                if (response.body.response.equals(GENERIC_AUTH_ERROR)) {
                     return onErrorReturn(response.body.error_message, true, false)
                 }
 
@@ -86,9 +86,11 @@ constructor(
                         response.body.token
                     )
                 )
-                if(result < 0){
-                    return onCompleteJob(DataState.error(
-                        Response(ERROR_SAVE_AUTH_TOKEN, ResponseType.Dialog()))
+                if (result < 0) {
+                    return onCompleteJob(
+                        DataState.error(
+                            Response(ERROR_SAVE_AUTH_TOKEN, ResponseType.Dialog())
+                        )
                     )
                 }
 
@@ -110,6 +112,16 @@ constructor(
             override fun setJob(job: Job) {
                 repositoryJob?.cancel()
                 repositoryJob = job
+            }
+
+            //Not Used
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                return AbsentLiveData.create()
+            }
+
+            //Not Used
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
             }
 
         }.asLiveData()
@@ -135,9 +147,10 @@ constructor(
         userMap["password"] = password
         userMap["password2"] = confirmPassword
 
-        return object : NetworkBoundResource<RegistrationResponse, AuthViewState>(
+        return object : NetworkBoundResource<RegistrationResponse, Any, AuthViewState>(
             sessionManager.isConnectedToTheInternet(),
-            true
+            true,
+            false
         ) {
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<RegistrationResponse>) {
                 Log.d(TAG, "handleApiSuccessResponse: $response")
@@ -192,55 +205,68 @@ constructor(
 
             }
 
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+
+            }
+
         }.asLiveData()
 
     }
 
-    fun checkPreviousAuthUser(): LiveData<DataState<AuthViewState>>{
+    fun checkPreviousAuthUser(): LiveData<DataState<AuthViewState>> {
 
-        val previousAuthUserEmail: String? = sharedPreferences.getString(PreferenceKeys.PREVIOUS_AUTH_USER, null)
+        val previousAuthUserEmail: String? =
+            sharedPreferences.getString(PreferenceKeys.PREVIOUS_AUTH_USER, null)
 
-        if(previousAuthUserEmail.isNullOrBlank()){
+        if (previousAuthUserEmail.isNullOrBlank()) {
             Log.d(TAG, "checkPreviousAuthUser: No previously authenticated user found.")
             return returnNoTokenFound()
-        }
-        else{
-            return object: NetworkBoundResource<Void, AuthViewState>(
+        } else {
+            return object : NetworkBoundResource<Void, Any, AuthViewState>(
                 sessionManager.isConnectedToTheInternet(),
+                false,
                 false
-            ){
+            ) {
 
                 override suspend fun createCacheRequestAndReturn() {
-                    accountPropertiesDao.searchByEmail(previousAuthUserEmail).let { accountProperties ->
-                        Log.d(TAG, "createCacheRequestAndReturn: searching for token... account properties: ${accountProperties}")
+                    accountPropertiesDao.searchByEmail(previousAuthUserEmail)
+                        .let { accountProperties ->
+                            Log.d(
+                                TAG,
+                                "createCacheRequestAndReturn: searching for token... account properties: ${accountProperties}"
+                            )
 
-                        accountProperties?.let {
-                            if(accountProperties.pk > -1){
-                                authTokenDao.searchByPk(accountProperties.pk).let { authToken ->
-                                    if(authToken != null){
-                                        if(authToken.token != null){
-                                            onCompleteJob(
-                                                DataState.data(
-                                                    data = AuthViewState(authToken = authToken)
+                            accountProperties?.let {
+                                if (accountProperties.pk > -1) {
+                                    authTokenDao.searchByPk(accountProperties.pk).let { authToken ->
+                                        if (authToken != null) {
+                                            if (authToken.token != null) {
+                                                onCompleteJob(
+                                                    DataState.data(
+                                                        data = AuthViewState(authToken = authToken)
+                                                    )
                                                 )
-                                            )
-                                            return
+                                                return
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
-                        Log.d(TAG, "createCacheRequestAndReturn: AuthToken not found...")
-                        onCompleteJob(
-                            DataState.data(
-                                null,
-                                Response(
-                                    RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE,
-                                    ResponseType.None()
+                            Log.d(TAG, "createCacheRequestAndReturn: AuthToken not found...")
+                            onCompleteJob(
+                                DataState.data(
+                                    null,
+                                    Response(
+                                        RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE,
+                                        ResponseType.None()
+                                    )
                                 )
                             )
-                        )
-                    }
+                        }
                 }
 
                 // not used in this case
@@ -255,6 +281,15 @@ constructor(
                 override fun setJob(job: Job) {
                     repositoryJob?.cancel()
                     repositoryJob = job
+                }
+
+                // not used in this case
+                override fun loadFromCache(): LiveData<AuthViewState> {
+                    return AbsentLiveData.create()
+                }
+
+                // not used in this case
+                override suspend fun updateLocalDb(cacheObject: Any?) {
                 }
 
 
