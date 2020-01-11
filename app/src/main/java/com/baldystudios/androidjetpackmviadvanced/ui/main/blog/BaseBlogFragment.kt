@@ -22,12 +22,13 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
+        cancelActiveJobs()
     }
 
     /*
           @fragmentId is id of fragment from graph to be EXCLUDED from action back bar nav
         */
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
@@ -36,12 +37,16 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
         )
     }
 
+    fun cancelActiveJobs() {
+        //viewModel.cancelActiveJobs()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try{
+        try {
             stateChangeListener = context as DataStateChangeListener
-        }catch(e: ClassCastException){
-            Log.e(TAG, "$context must implement DataStateChangeListener" )
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement DataStateChangeListener")
         }
     }
 }

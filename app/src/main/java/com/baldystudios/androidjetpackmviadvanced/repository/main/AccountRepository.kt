@@ -1,6 +1,5 @@
 package com.baldystudios.androidjetpackmviadvanced.repository.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
 import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
@@ -8,6 +7,7 @@ import com.baldystudios.androidjetpackmviadvanced.api.main.OpenApiMainService
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
+import com.baldystudios.androidjetpackmviadvanced.repository.JobManager
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
@@ -27,11 +27,10 @@ constructor(
     val openApiMainService: OpenApiMainService,
     val accountPropertiesDao: AccountPropertiesDao,
     val sessionManager: SessionManager
-) {
+) : JobManager("AccountRepository") {
 
     private val TAG: String = "AppDebug"
 
-    private var repositoryJob: Job? = null
 
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
 
@@ -73,8 +72,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("getAccountProperties", job)
             }
 
             override fun loadFromCache(): LiveData<AccountViewState> {
@@ -157,8 +155,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("saveAccountProperties", job)
             }
 
         }.asLiveData()
@@ -213,16 +210,12 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("updatePasssword", job)
             }
 
         }.asLiveData()
 
     }
 
-    fun cancelActiveJobs() {
-        Log.d(TAG, "AccountRepository: cancelling active jobs...")
-    }
 
 }

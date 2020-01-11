@@ -11,6 +11,7 @@ import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
+import com.baldystudios.androidjetpackmviadvanced.repository.JobManager
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
@@ -38,10 +39,9 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharedPrefsEditor: SharedPreferences.Editor
-) {
+): JobManager("AuthRepository") {
     private val TAG: String = "AppDebug"
 
-    private var repositoryJob: Job? = null
 
     fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
 
@@ -111,8 +111,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptLogin", job)
             }
 
             //Not Used
@@ -198,8 +197,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptRegistration", job)
             }
 
             //Ignore
@@ -282,8 +280,7 @@ constructor(
                 }
 
                 override fun setJob(job: Job) {
-                    repositoryJob?.cancel()
-                    repositoryJob = job
+                    addJob("checkPreviousAuthUser", job)
                 }
 
                 // not used in this case
@@ -335,9 +332,5 @@ constructor(
         }
     }
 
-    fun cancelActiveJobs() {
-        Log.d(TAG, "AuthRepository: Cancelling on-going jobs...")
-        repositoryJob?.cancel()
-    }
 
 }

@@ -11,10 +11,13 @@ import androidx.navigation.NavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.AuthActivity
+import com.baldystudios.androidjetpackmviadvanced.ui.main.account.BaseAccountFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.ChangePasswordFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.UpdateAccountFragment
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.BaseBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.UpdateBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.ViewBlogFragment
+import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.BaseCreateBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController
 import com.baldystudios.androidjetpackmviadvanced.util.setUpNavigation
 import com.google.android.material.appbar.AppBarLayout
@@ -55,6 +58,27 @@ class MainActivity : BaseActivity(),
 
     override fun onGraphChange() {
         expandAppBar()
+        cancelActiveJobs()
+    }
+
+    private fun cancelActiveJobs() {
+        val fragments = bottomNavController.fragmentManager
+            .findFragmentById(bottomNavController.containerId)
+            ?.childFragmentManager
+            ?.fragments
+
+        if (fragments != null) {
+            for (fragment in fragments) {
+                when (fragment) {
+                    is BaseAccountFragment -> fragment.cancelActiveJobs()
+
+                    is BaseBlogFragment -> fragment.cancelActiveJobs()
+
+                    is BaseCreateBlogFragment -> fragment.cancelActiveJobs()
+                }
+            }
+        }
+        displayProgressBar(false)
     }
 
     override fun onReselectNavItem(
