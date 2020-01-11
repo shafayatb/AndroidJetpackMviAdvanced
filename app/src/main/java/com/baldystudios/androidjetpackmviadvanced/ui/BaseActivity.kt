@@ -1,6 +1,8 @@
 package com.baldystudios.androidjetpackmviadvanced.ui
 
+import android.content.Context
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType.*
 import dagger.android.support.DaggerAppCompatActivity
@@ -38,6 +40,14 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
             }
         }
 
+    }
+
+    override fun hideSoftKeyboard() {
+        if(currentFocus != null){
+            val inputMethodManager = getSystemService(
+                Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
     }
 
     private fun handleStateResponse(event: Event<Response>) {
