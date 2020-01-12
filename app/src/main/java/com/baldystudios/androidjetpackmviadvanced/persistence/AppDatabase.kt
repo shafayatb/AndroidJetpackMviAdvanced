@@ -7,7 +7,7 @@ import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 
 
-@Database(entities = [AuthToken::class, AccountProperties::class, BlogPost::class], version = 1)
+@Database(entities = [AuthToken::class, AccountProperties::class, BlogPost::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getAuthTokenDao(): AuthTokenDao

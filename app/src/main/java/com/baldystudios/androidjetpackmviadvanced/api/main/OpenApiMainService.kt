@@ -2,6 +2,7 @@ package com.baldystudios.androidjetpackmviadvanced.api.main
 
 import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
+import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogListSearchResponse
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
 import retrofit2.http.*
@@ -29,4 +30,10 @@ interface OpenApiMainService {
         @Field("new_password") newPassword: String,
         @Field("confirm_new_password") confirmNewPassword: String
     ): LiveData<GenericApiResponse<GenericResponse>>
+
+    @GET("blog/list")
+    fun searchListBlogPost(
+        @Header("Authorization") authorization: String,
+        @Query("search") query: String
+    ): LiveData<GenericApiResponse<BlogListSearchResponse>>
 }
