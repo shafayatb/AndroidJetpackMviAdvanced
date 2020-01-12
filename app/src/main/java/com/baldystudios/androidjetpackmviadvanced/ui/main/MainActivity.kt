@@ -114,7 +114,7 @@ class MainActivity : BaseActivity(),
         when (item?.itemId) {
             android.R.id.home -> onBackPressed()
         }
-        return super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(item!!)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
