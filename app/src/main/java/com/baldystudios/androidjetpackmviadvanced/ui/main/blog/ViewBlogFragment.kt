@@ -25,6 +25,7 @@ class ViewBlogFragment : BaseBlogFragment() {
         setHasOptionsMenu(true)
 
         subscribeObservers()
+        stateChangeListener.expandAppBar()
     }
 
     private fun subscribeObservers() {

@@ -57,8 +57,8 @@ class MainActivity : BaseActivity(),
     }
 
     override fun onGraphChange() {
-        expandAppBar()
         cancelActiveJobs()
+        expandAppBar()
     }
 
     private fun cancelActiveJobs() {

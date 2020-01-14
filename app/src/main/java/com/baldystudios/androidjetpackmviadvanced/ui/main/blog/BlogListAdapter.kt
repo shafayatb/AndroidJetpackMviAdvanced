@@ -88,7 +88,7 @@ class BlogListAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is BlogViewHolder -> {
-                holder.bind(differ.currentList.get(position))
+                holder.bind(differ.currentList[position])
             }
         }
     }
@@ -111,7 +111,7 @@ class BlogListAdapter(
         if (isQueryExhausted) {
             newList?.add(NO_MORE_RESULTS_BLOG_MARKAR)
         }
-        differ.submitList(list)
+        differ.submitList(newList)
     }
 
     internal inner class BlogRecyclerChangeCallback(
