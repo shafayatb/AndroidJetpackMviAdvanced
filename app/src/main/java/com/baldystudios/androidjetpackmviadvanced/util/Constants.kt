@@ -11,6 +11,8 @@ class Constants {
         const val TESTING_NETWORK_DELAY = 0L
         const val TESTING_CACHE_DELAY = 0L
 
+        const val PAGINATION_PAGE_SIZE = 10
+
     }
 
 }

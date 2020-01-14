@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
+import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
-import com.bumptech.glide.RequestManager
 import kotlinx.android.synthetic.main.fragment_blog.*
-import javax.inject.Inject
 
 class BlogFragment : BaseBlogFragment(),
     BlogListAdapter.Interaction {
@@ -34,36 +35,19 @@ class BlogFragment : BaseBlogFragment(),
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
-//        goViewBlogFragment.setOnClickListener {
-//            findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
-//        }
-
         initRecyclerView()
         subscribeObservers()
-        executeSearch()
-    }
 
-    private fun executeSearch() {
-
-        viewModel.setQuery("")
-        viewModel.setStateEvent(
-            BlogStateEvent.BlogSearchEvent()
-        )
-
+        if (savedInstanceState == null) {
+            viewModel.loadFirstPage()
+        }
     }
 
     private fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
             if (dataState != null) {
+                handlePagination(dataState)
                 stateChangeListener.onDataStateChange(dataState)
-                dataState.data?.let { dataViewState ->
-                    dataViewState.data?.let { event ->
-                        event.getContentIfNotHandled()?.let {
-                            Log.d(TAG, "BlogFragment, dataState: $it")
-                            viewModel.setBlogListData(it.blogFields.blogList)
-                        }
-                    }
-                }
             }
         })
 
@@ -72,12 +56,36 @@ class BlogFragment : BaseBlogFragment(),
             viewState?.let { blogViewState ->
                 recyclerAdapter.submitList(
                     blogViewState.blogFields.blogList,
-                    true
+                    isQueryExhausted = viewState.blogFields.isQueryExhausted
                 )
 
             }
         })
     }
+
+    private fun handlePagination(dataState: DataState<BlogViewState>) {
+        //handle incoming data from DataState
+        dataState.data?.let { data ->
+            data.data?.let { event ->
+                event.getContentIfNotHandled()?.let { blogViewState ->
+                    viewModel.handleIncomingBlogListData(blogViewState)
+                }
+            }
+        }
+        //Check for pagination end
+        //must do this b/c server will return ApiErrorResponse if page has no data
+
+        dataState.error?.let { event ->
+            event.peekContent().response.message?.let {
+                if (ErrorHandling.isPaginationDone(it)) {
+
+                    event.getContentIfNotHandled()
+                    viewModel.setQueryExhausted(true)
+                }
+            }
+        }
+    }
+
 
     private fun initRecyclerView() {
         blog_post_recyclerview.apply {
@@ -99,7 +107,7 @@ class BlogFragment : BaseBlogFragment(),
                     val lastPosition = layoutManager.findLastVisibleItemPosition()
                     if (lastPosition == recyclerAdapter.itemCount.minus(1)) {
                         Log.d(TAG, "BlogFragment: attempting to load next page...")
-
+                        viewModel.nextPage()
                     }
                 }
             })

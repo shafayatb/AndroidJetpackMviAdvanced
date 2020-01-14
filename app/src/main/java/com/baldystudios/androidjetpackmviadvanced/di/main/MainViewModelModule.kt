@@ -3,7 +3,7 @@ package com.baldystudios.androidjetpackmviadvanced.di.main
 import androidx.lifecycle.ViewModel
 import com.baldystudios.androidjetpackmviadvanced.di.ViewModelKey
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.AccountViewModel
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.BlogViewModel
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.BlogViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

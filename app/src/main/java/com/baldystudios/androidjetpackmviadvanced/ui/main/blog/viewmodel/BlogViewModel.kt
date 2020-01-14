@@ -1,12 +1,12 @@
-package com.baldystudios.androidjetpackmviadvanced.ui.main.blog
+package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
-import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepository
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.None
@@ -36,7 +36,8 @@ constructor(
                 sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.searchBlogPost(
                         authToken,
-                        viewState.value!!.blogFields.searchQuery
+                        getSearchQuery(),
+                        getPage()
                     )
                 } ?: AbsentLiveData.create()
             }
@@ -46,38 +47,21 @@ constructor(
             }
 
             is None -> {
-                AbsentLiveData.create()
+                object : LiveData<DataState<BlogViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState(
+                            null,
+                            Loading(false),
+                            null
+                        )
+                    }
+                }
             }
 
         }
     }
 
-    fun setQuery(query: String) {
-        val update = getCurrentViewStateOrNew()
-//        if (query == update.blogFields.searchQuery) {
-//            return
-//        }
-        update.blogFields.searchQuery = query
-        _viewState.value = update
-    }
-
-    fun setBlogListData(blogPost: List<BlogPost>) {
-        val update = getCurrentViewStateOrNew()
-        update.blogFields.blogList = blogPost
-        _viewState.value = update
-    }
-
-    fun setBlogPost(blogPost: BlogPost) {
-        val update = getCurrentViewStateOrNew()
-        update.viewBlogFields.blogPost = blogPost
-        _viewState.value = update
-    }
-
-    fun isAuthorOfBlogPost(isAuthorOfBlogPost: Boolean) {
-        val update = getCurrentViewStateOrNew()
-        update.viewBlogFields.isAuthorOfBlogPost = isAuthorOfBlogPost
-        _viewState.value = update
-    }
 
     fun cancelActiveJobs() {
         blogRepository.cancelActiveJobs()

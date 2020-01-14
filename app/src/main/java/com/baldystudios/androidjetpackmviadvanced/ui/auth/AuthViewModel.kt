@@ -65,7 +65,7 @@ constructor(
             return
         }
         update.registrationFields = registrationFields
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun setLoginFields(loginFields: LoginFields) {
@@ -74,7 +74,7 @@ constructor(
             return
         }
         update.loginFields = loginFields
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun setAuthToken(authToken: AuthToken) {
@@ -83,7 +83,7 @@ constructor(
             return
         }
         update.authToken = authToken
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun cancelActiveJobs() {
