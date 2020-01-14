@@ -38,11 +38,17 @@ constructor(
                         authToken,
                         viewState.value!!.blogFields.searchQuery
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
             }
+
+            is BlogStateEvent.CheckAuthorOfBlogPost -> {
+                AbsentLiveData.create()
+            }
+
             is None -> {
                 AbsentLiveData.create()
             }
+
         }
     }
 
@@ -58,6 +64,18 @@ constructor(
     fun setBlogListData(blogPost: List<BlogPost>) {
         val update = getCurrentViewStateOrNew()
         update.blogFields.blogList = blogPost
+        _viewState.value = update
+    }
+
+    fun setBlogPost(blogPost: BlogPost) {
+        val update = getCurrentViewStateOrNew()
+        update.viewBlogFields.blogPost = blogPost
+        _viewState.value = update
+    }
+
+    fun isAuthorOfBlogPost(isAuthorOfBlogPost: Boolean) {
+        val update = getCurrentViewStateOrNew()
+        update.viewBlogFields.isAuthorOfBlogPost = isAuthorOfBlogPost
         _viewState.value = update
     }
 

@@ -2,10 +2,14 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.blog
 
 import android.os.Bundle
 import android.view.*
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
+import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
+import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
+import kotlinx.android.synthetic.main.fragment_view_blog.*
 
-class ViewBlogFragment : BaseBlogFragment(){
+class ViewBlogFragment : BaseBlogFragment() {
 
 
     override fun onCreateView(
@@ -19,12 +23,39 @@ class ViewBlogFragment : BaseBlogFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
+        subscribeObservers()
+    }
+
+    private fun subscribeObservers() {
+        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
+            stateChangeListener.onDataStateChange(dataState)
+        })
+
+        viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
+            viewState.viewBlogFields.blogPost?.let { blogPost ->
+                setBlogProperties(blogPost)
+            }
+        })
+    }
+
+    private fun setBlogProperties(blogPost: BlogPost) {
+        requestManager
+            .load(blogPost.image)
+            .into(blog_image)
+
+        blog_title.text = blogPost.title
+        blog_author.text = blogPost.username
+        blog_update_date.text = DateUtils.convertLongToStringDate(
+            blogPost.date_updated
+        )
+        blog_body.text = blogPost.body
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
-        if(isAuthorOfBlogPost){
+        if (isAuthorOfBlogPost) {
             inflater.inflate(R.menu.edit_view_menu, menu)
         }
     }
@@ -32,8 +63,8 @@ class ViewBlogFragment : BaseBlogFragment(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
-        if(isAuthorOfBlogPost){
-            when(item.itemId){
+        if (isAuthorOfBlogPost) {
+            when (item.itemId) {
                 R.id.edit -> {
                     navUpdateBlogFragment()
                     return true
@@ -43,7 +74,7 @@ class ViewBlogFragment : BaseBlogFragment(){
         return super.onOptionsItemSelected(item)
     }
 
-    private fun navUpdateBlogFragment(){
+    private fun navUpdateBlogFragment() {
         findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
     }
 }
