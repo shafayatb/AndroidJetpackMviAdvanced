@@ -36,7 +36,7 @@ constructor(
 
         sharedPreferences.getString(
             BLOG_ORDER,
-            BlogQueryUtils.BLOG_ORDER_DESC
+            BlogQueryUtils.BLOG_ORDER_ASC
         )?.let {
             setBlogOrder(
                 it
@@ -56,7 +56,7 @@ constructor(
                     blogRepository.searchBlogPost(
                         authToken,
                         getSearchQuery(),
-                        getOrder() + getFiter(),
+                        getOrder() + getFilter(),
                         getPage()
                     )
                 } ?: AbsentLiveData.create()
@@ -84,8 +84,11 @@ constructor(
 
 
     fun saveFilterOptions(filter: String, order: String) {
-        editor.putString(BLOG_FILTER, filter).apply()
-        editor.putString(BLOG_ORDER, order).apply()
+        editor.putString(BLOG_FILTER, filter)
+        editor.apply()
+
+        editor.putString(BLOG_ORDER, order)
+        editor.apply()
     }
 
     fun cancelActiveJobs() {

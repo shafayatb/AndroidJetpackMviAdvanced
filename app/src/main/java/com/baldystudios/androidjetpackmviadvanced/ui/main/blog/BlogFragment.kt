@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
@@ -14,8 +17,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
+import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_DATE_UPDATED
+import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
+import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
@@ -189,6 +198,76 @@ class BlogFragment : BaseBlogFragment(),
     override fun onRefresh() {
         onBlogSearchOrFilter()
         swipe_refresh.isRefreshing = false
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.action_filter_settings -> {
+                showFilterOptions()
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun showFilterOptions() {
+        activity?.let {
+            val dialog = MaterialDialog(it)
+                .noAutoDismiss()
+                .customView(R.layout.layout_blog_filter)
+
+            val view = dialog.getCustomView()
+
+            val filter = viewModel.getFilter()
+            if (filter == BLOG_FILTER_DATE_UPDATED) {
+                view.findViewById<RadioGroup>(R.id.filter_group).check(R.id.filter_date)
+            } else {
+                view.findViewById<RadioGroup>(R.id.filter_group).check(R.id.filter_author)
+            }
+
+            val order = viewModel.getOrder()
+            if (order == BLOG_ORDER_ASC) {
+                view.findViewById<RadioGroup>(R.id.order_group).check(R.id.filter_asc)
+            } else {
+                view.findViewById<RadioGroup>(R.id.order_group).check(R.id.filter_desc)
+            }
+
+            view.findViewById<TextView>(R.id.positive_button).setOnClickListener {
+                val selectedFilter = dialog.getCustomView().findViewById<RadioButton>(
+                    dialog.getCustomView().findViewById<RadioGroup>(R.id.filter_group).checkedRadioButtonId
+                )
+
+                val selectedOrder = dialog.getCustomView().findViewById<RadioButton>(
+                    dialog.getCustomView().findViewById<RadioGroup>(R.id.order_group).checkedRadioButtonId
+                )
+
+                var filter = BLOG_FILTER_DATE_UPDATED
+                if (selectedFilter.text.toString() == getString(R.string.filter_author)) {
+                    filter = BLOG_FILTER_USERNAME
+                }
+
+                var order = ""
+                if (selectedOrder.text.toString() == getString(R.string.filter_desc)) {
+                    order = "-"
+                }
+
+                viewModel.saveFilterOptions(filter, order).let {
+                    viewModel.setBlogFilter(filter)
+                    viewModel.setBlogOrder(order)
+                    onBlogSearchOrFilter()
+                }
+
+                dialog.dismiss()
+            }
+
+            view.findViewById<TextView>(R.id.negative_button).setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
     }
 
 }

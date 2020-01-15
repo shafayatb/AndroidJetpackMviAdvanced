@@ -24,7 +24,7 @@ fun BlogViewModel.getIsQueryInProgress(): Boolean {
     }
 }
 
-fun BlogViewModel.getFiter(): String  {
+fun BlogViewModel.getFilter(): String  {
     getCurrentViewStateOrNew().let {
         return it.blogFields.filter
     }
