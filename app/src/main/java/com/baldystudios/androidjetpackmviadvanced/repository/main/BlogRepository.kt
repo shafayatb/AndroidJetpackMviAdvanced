@@ -3,6 +3,7 @@ package com.baldystudios.androidjetpackmviadvanced.repository.main
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
+import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.OpenApiMainService
 import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogListSearchResponse
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
@@ -15,9 +16,12 @@ import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.BlogFields
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.ViewBlogFields
+import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.PAGINATION_PAGE_SIZE
 import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
 import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
+import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_NO_PERMISSION_TO_EDIT
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -41,12 +45,13 @@ constructor(
         filerAndOrder: String,
         page: Int
     ): LiveData<DataState<BlogViewState>> {
-        return object : NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
-            sessionManager.isConnectedToTheInternet(),
-            true,
-            false,
-            true
-        ) {
+        return object :
+            NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
+                sessionManager.isConnectedToTheInternet(),
+                true,
+                false,
+                true
+            ) {
             override suspend fun createCacheRequestAndReturn() {
                 withContext(Main) {
 
@@ -140,6 +145,58 @@ constructor(
 
             override fun setJob(job: Job) {
                 addJob("searchBlogPost", job)
+            }
+
+        }.asLiveData()
+    }
+
+    fun isAuthorOfBlogPost(
+        authToken: AuthToken,
+        slug: String
+    ): LiveData<DataState<BlogViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, BlogViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true,
+            true,
+            false
+        ) {
+            override suspend fun createCacheRequestAndReturn() {
+
+            }
+
+            override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
+                withContext(Main) {
+                    Log.d(TAG, "handleApiSuccessResponse: ${response.body.response}")
+
+                    onCompleteJob(
+                        DataState.data(
+                            data = BlogViewState(
+                                viewBlogFields = ViewBlogFields(
+                                    isAuthorOfBlogPost = response.body.response == RESPONSE_NO_PERMISSION_TO_EDIT
+                                )
+                            )
+                        )
+                    )
+
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.isAuthorOfBlogPost(
+                    "Token ${authToken.token}",
+                    slug
+                )
+            }
+
+            override fun loadFromCache(): LiveData<BlogViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+            }
+
+            override fun setJob(job: Job) {
+                addJob("isAuthorOfBlogPost", job)
             }
 
         }.asLiveData()

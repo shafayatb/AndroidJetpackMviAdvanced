@@ -24,14 +24,30 @@ fun BlogViewModel.getIsQueryInProgress(): Boolean {
     }
 }
 
-fun BlogViewModel.getFilter(): String  {
+fun BlogViewModel.getFilter(): String {
     getCurrentViewStateOrNew().let {
         return it.blogFields.filter
     }
 }
 
-fun BlogViewModel.getOrder(): String  {
+fun BlogViewModel.getOrder(): String {
     getCurrentViewStateOrNew().let {
         return it.blogFields.order
     }
+}
+
+fun BlogViewModel.getSlug(): String {
+    getCurrentViewStateOrNew().let { blogViewState ->
+        blogViewState.viewBlogFields.blogPost?.let {
+            return it.slug
+        }
+    }
+    return ""
+}
+
+fun BlogViewModel.isAuthorOfBlogPost(): Boolean {
+    getCurrentViewStateOrNew().let {
+        return it.viewBlogFields.isAuthorOfBlogPost
+    }
+
 }
