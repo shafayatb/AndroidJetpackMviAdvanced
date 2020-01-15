@@ -8,6 +8,7 @@ import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogListSea
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogPostDao
+import com.baldystudios.androidjetpackmviadvanced.persistence.returnOrderedBlogQuery
 import com.baldystudios.androidjetpackmviadvanced.repository.JobManager
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
@@ -37,6 +38,7 @@ constructor(
     fun searchBlogPost(
         authToken: AuthToken,
         query: String,
+        filerAndOrder: String,
         page: Int
     ): LiveData<DataState<BlogViewState>> {
         return object : NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
@@ -87,13 +89,18 @@ constructor(
                 return openApiMainService.searchListBlogPost(
                     "Token ${authToken.token!!}",
                     query = query,
+                    ordering = filerAndOrder,
                     page = page
                 )
             }
 
             override fun loadFromCache(): LiveData<BlogViewState> {
 
-                return blogPostDao.getAllBlogPost(query, page)
+                return blogPostDao.returnOrderedBlogQuery(
+                    query = query,
+                    filterAndOrder = filerAndOrder,
+                    page = page
+                )
                     .switchMap {
                         object : LiveData<BlogViewState>() {
                             override fun onActive() {

@@ -23,3 +23,15 @@ fun BlogViewModel.getIsQueryInProgress(): Boolean {
         return it.blogFields.isQueryInProgress
     }
 }
+
+fun BlogViewModel.getFiter(): String  {
+    getCurrentViewStateOrNew().let {
+        return it.blogFields.filter
+    }
+}
+
+fun BlogViewModel.getOrder(): String  {
+    getCurrentViewStateOrNew().let {
+        return it.blogFields.order
+    }
+}
