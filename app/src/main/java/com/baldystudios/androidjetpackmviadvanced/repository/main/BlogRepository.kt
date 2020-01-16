@@ -14,14 +14,18 @@ import com.baldystudios.androidjetpackmviadvanced.repository.JobManager
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.ui.Response
+import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.BlogFields
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.ViewBlogFields
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.PAGINATION_PAGE_SIZE
 import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_UNKNOWN
 import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_NO_PERMISSION_TO_EDIT
+import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -172,7 +176,7 @@ constructor(
                         DataState.data(
                             data = BlogViewState(
                                 viewBlogFields = ViewBlogFields(
-                                    isAuthorOfBlogPost = response.body.response == RESPONSE_NO_PERMISSION_TO_EDIT
+                                    isAuthorOfBlogPost = response.body.response != RESPONSE_NO_PERMISSION_TO_EDIT
                                 )
                             )
                         )
@@ -200,6 +204,68 @@ constructor(
             }
 
         }.asLiveData()
+    }
+
+    fun deleteBlogPost(
+        authToken: AuthToken,
+        blogPost: BlogPost
+    ): LiveData<DataState<BlogViewState>> {
+
+        return object : NetworkBoundResource<GenericResponse, BlogPost, BlogViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true,
+            true,
+            false
+        ) {
+            override suspend fun createCacheRequestAndReturn() {
+
+            }
+
+            override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
+                if (response.body.response == SUCCESS_BLOG_DELETED) {
+                    updateLocalDb(blogPost)
+                } else {
+                    onCompleteJob(
+                        DataState.error(
+                            Response(
+                                ERROR_UNKNOWN,
+                                ResponseType.Dialog()
+                            )
+                        )
+                    )
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.deleteBlogPost(
+                    "Token ${authToken.token}",
+                    blogPost.slug
+                )
+            }
+
+            override fun loadFromCache(): LiveData<BlogViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: BlogPost?) {
+                cacheObject?.let { blogPost ->
+                    blogPostDao.deleteBlogPost(blogPost)
+                    onCompleteJob(
+                        DataState.data(
+                            data = null,
+                            response = Response(SUCCESS_BLOG_DELETED, ResponseType.Toast())
+                        )
+                    )
+                }
+
+            }
+
+            override fun setJob(job: Job) {
+                addJob("deleteBlogPost", job)
+            }
+
+        }.asLiveData()
+
     }
 
 }

@@ -6,7 +6,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.isAuthorOfBlogPost
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
 import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
@@ -29,6 +29,16 @@ class ViewBlogFragment : BaseBlogFragment() {
         checkIsAuthorOfBlogPost()
         subscribeObservers()
         stateChangeListener.expandAppBar()
+
+        delete_button.setOnClickListener {
+            deleteBlogPost()
+        }
+    }
+
+    private fun deleteBlogPost() {
+        viewModel.setStateEvent(
+            DeleteBlogPostEvent()
+        )
     }
 
     private fun checkIsAuthorOfBlogPost() {

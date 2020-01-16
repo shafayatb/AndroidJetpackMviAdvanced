@@ -1,5 +1,7 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
+import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
+
 fun BlogViewModel.getSearchQuery(): String {
     getCurrentViewStateOrNew().let {
         return it.blogFields.searchQuery
@@ -50,4 +52,17 @@ fun BlogViewModel.isAuthorOfBlogPost(): Boolean {
         return it.viewBlogFields.isAuthorOfBlogPost
     }
 
+}
+
+fun BlogViewModel.getBlogPost(): BlogPost {
+    getCurrentViewStateOrNew().let {
+        return it.viewBlogFields.blogPost?.let { blogPost ->
+            return blogPost
+        } ?: getDummyBlogPost()
+    }
+
+}
+
+fun BlogViewModel.getDummyBlogPost(): BlogPost {
+    return BlogPost(-1, "", "", "", "", 1, "")
 }

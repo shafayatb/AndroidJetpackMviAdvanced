@@ -9,8 +9,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.None
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_FILTER
@@ -62,13 +61,22 @@ constructor(
                 } ?: AbsentLiveData.create()
             }
 
-            is BlogStateEvent.CheckAuthorOfBlogPost -> {
-                sessionManager.cachedToken.value?.let {authToken ->
+            is CheckAuthorOfBlogPost -> {
+                sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.isAuthorOfBlogPost(
                         authToken,
                         getSlug()
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
+            }
+
+            is DeleteBlogPostEvent -> {
+                sessionManager.cachedToken.value?.let { authToken ->
+                    blogRepository.deleteBlogPost(
+                        authToken,
+                        getBlogPost()
+                    )
+                } ?: AbsentLiveData.create()
             }
 
             is None -> {
