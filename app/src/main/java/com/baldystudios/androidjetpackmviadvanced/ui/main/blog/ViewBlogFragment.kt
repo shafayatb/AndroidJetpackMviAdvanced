@@ -6,10 +6,16 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
+import com.baldystudios.androidjetpackmviadvanced.ui.AreYouSureCallback
+import com.baldystudios.androidjetpackmviadvanced.ui.UIMessage
+import com.baldystudios.androidjetpackmviadvanced.ui.UIMessageType
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.isAuthorOfBlogPost
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.removeDeletedBlogPost
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
 import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
+import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.android.synthetic.main.fragment_view_blog.*
 
 class ViewBlogFragment : BaseBlogFragment() {
@@ -31,8 +37,26 @@ class ViewBlogFragment : BaseBlogFragment() {
         stateChangeListener.expandAppBar()
 
         delete_button.setOnClickListener {
-            deleteBlogPost()
+            confirmDeleteRequest()
         }
+    }
+
+    private fun confirmDeleteRequest() {
+        val callback: AreYouSureCallback = object : AreYouSureCallback {
+            override fun proceed() {
+                deleteBlogPost()
+            }
+
+            override fun cancel() {
+            }
+        }
+
+        uiCommunicationListener.onUIMessageReceived(
+            UIMessage(
+                getString(R.string.are_you_sure_delete),
+                UIMessageType.AreYouSureDialog(callback)
+            )
+        )
     }
 
     private fun deleteBlogPost() {
@@ -54,6 +78,13 @@ class ViewBlogFragment : BaseBlogFragment() {
                     viewModel.setIsAuthorOfBlogPost(
                         blogViewState.viewBlogFields.isAuthorOfBlogPost
                     )
+                }
+
+                data.response?.peekContent()?.let { response ->
+                    if (response.message == SUCCESS_BLOG_DELETED) {
+                        viewModel.removeDeletedBlogPost()
+                        findNavController().popBackStack()
+                    }
                 }
             }
         })

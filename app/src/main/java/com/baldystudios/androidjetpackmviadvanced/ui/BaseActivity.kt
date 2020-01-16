@@ -11,7 +11,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener {
+abstract class BaseActivity : DaggerAppCompatActivity(),
+    DataStateChangeListener,
+    UICommunicationListener {
 
 
     val TAG: String = "AppDebug"
@@ -43,9 +45,10 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
     }
 
     override fun hideSoftKeyboard() {
-        if(currentFocus != null){
+        if (currentFocus != null) {
             val inputMethodManager = getSystemService(
-                Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                Context.INPUT_METHOD_SERVICE
+            ) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
         }
     }
@@ -107,4 +110,20 @@ abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener
     }
 
     abstract fun displayProgressBar(bool: Boolean)
+
+    override fun onUIMessageReceived(uiMessage: UIMessage) {
+        when (uiMessage.uiMessageType) {
+
+            is UIMessageType.Toast -> displayToast(uiMessage.message)
+
+            is UIMessageType.Dialog -> displayInfoDialog(uiMessage.message)
+
+            is UIMessageType.AreYouSureDialog -> areYouSureDialog(
+                uiMessage.message,
+                uiMessage.uiMessageType.callback
+            )
+
+            is UIMessageType.None -> Log.i(TAG, "onUIMessageReceived: ${uiMessage.message}")
+        }
+    }
 }

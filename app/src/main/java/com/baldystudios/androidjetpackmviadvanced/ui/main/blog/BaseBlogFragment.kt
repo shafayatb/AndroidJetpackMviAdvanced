@@ -13,6 +13,7 @@ import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.di.Injectable
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
+import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.BlogViewModel
 import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
 import com.bumptech.glide.RequestManager
@@ -31,6 +32,8 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
     lateinit var viewModel: BlogViewModel
 
     lateinit var stateChangeListener: DataStateChangeListener
+
+    lateinit var uiCommunicationListener: UICommunicationListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -65,6 +68,12 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
             stateChangeListener = context as DataStateChangeListener
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement DataStateChangeListener")
+        }
+
+        try {
+            uiCommunicationListener = context as UICommunicationListener
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement UICommunicationListener")
         }
     }
 }
