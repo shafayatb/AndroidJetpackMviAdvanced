@@ -1,7 +1,9 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
@@ -11,9 +13,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.UIMessage
 import com.baldystudios.androidjetpackmviadvanced.ui.UIMessageType
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.isAuthorOfBlogPost
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.removeDeletedBlogPost
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.android.synthetic.main.fragment_view_blog.*
@@ -138,6 +138,16 @@ class ViewBlogFragment : BaseBlogFragment() {
     }
 
     private fun navUpdateBlogFragment() {
-        findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
+        try {
+            viewModel.setUpdatedBlogFields(
+                viewModel.getBlogPost().title,
+                viewModel.getBlogPost().body,
+                viewModel.getBlogPost().image.toUri()
+            )
+            findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception: ${e.message}")
+        }
+
     }
 }

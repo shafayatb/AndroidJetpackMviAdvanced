@@ -1,5 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
+import android.net.Uri
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 
 fun BlogViewModel.setQuery(query: String) {
@@ -58,11 +59,25 @@ fun BlogViewModel.setBlogOrder(order: String) {
 fun BlogViewModel.removeDeletedBlogPost() {
     val update = getCurrentViewStateOrNew()
     val list = update.blogFields.blogList.toMutableList()
-    for(i in 0 until list.size){
-        if(list[i] == getBlogPost()){
+    for (i in 0 until list.size) {
+        if (list[i] == getBlogPost()) {
             list.remove(getBlogPost())
             break
         }
     }
     setBlogListData(list)
+}
+
+fun BlogViewModel.setUpdatedBlogFields(
+    title: String?,
+    body: String?,
+    uri: Uri?
+) {
+    val update = getCurrentViewStateOrNew()
+    val updatedBlogFields = update.updateBlogFields
+    title?.let { updatedBlogFields.updatedBlogTitle = it }
+    body?.let { updatedBlogFields.updatedBlogBody = it }
+    uri?.let { updatedBlogFields.updatedImageUri = it }
+    update.updateBlogFields = updatedBlogFields
+    setViewState(update)
 }
