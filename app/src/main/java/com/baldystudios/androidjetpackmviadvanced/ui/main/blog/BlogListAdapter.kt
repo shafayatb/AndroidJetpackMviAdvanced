@@ -114,6 +114,17 @@ class BlogListAdapter(
         differ.submitList(newList)
     }
 
+    fun preloadGlideImages(
+        requestManager: RequestManager,
+        list: List<BlogPost>
+    ) {
+        for (blogPost in list) {
+            requestManager
+                .load(blogPost.image)
+                .preload()
+        }
+    }
+
     internal inner class BlogRecyclerChangeCallback(
         private val adapter: BlogListAdapter
     ) : ListUpdateCallback {
