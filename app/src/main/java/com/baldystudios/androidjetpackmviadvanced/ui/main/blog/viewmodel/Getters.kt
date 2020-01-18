@@ -1,5 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
+import android.net.Uri
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 
 fun BlogViewModel.getSearchQuery(): String {
@@ -65,4 +66,13 @@ fun BlogViewModel.getBlogPost(): BlogPost {
 
 fun BlogViewModel.getDummyBlogPost(): BlogPost {
     return BlogPost(-1, "", "", "", "", 1, "")
+}
+
+fun BlogViewModel.getUpdatedBlogUri(): Uri?{
+    getCurrentViewStateOrNew().let {blogViewState->
+        blogViewState.updateBlogFields.updatedImageUri?.let {
+            return it
+        }
+    }
+    return null
 }
