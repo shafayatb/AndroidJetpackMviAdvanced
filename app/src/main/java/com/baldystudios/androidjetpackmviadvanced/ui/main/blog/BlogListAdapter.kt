@@ -42,6 +42,7 @@ class BlogListAdapter(
         }
 
     }
+
     private val differ = AsyncListDiffer(
         BlogRecyclerChangeCallback(this),
         AsyncDifferConfig.Builder(DIFF_CALLBACK).build()
