@@ -14,6 +14,8 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.Crea
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState.NewBlogFields
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class CreateBlogViewModel
@@ -30,7 +32,23 @@ constructor(
     override fun handleStateEvent(stateEvent: CreateBlogStateEvent): LiveData<DataState<CreateBlogViewState>> {
         return when (stateEvent) {
             is CreateNewBlogEvent -> {
-                AbsentLiveData.create()
+                sessionManager.cachedToken.value?.let { authToken ->
+                    val title = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.title
+                    )
+                    val body = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.body
+                    )
+
+                    createBlogRepository.createNewBlogPost(
+                        authToken,
+                        title,
+                        body,
+                        stateEvent.image
+                    )
+                } ?: AbsentLiveData.create()
             }
             is None -> {
                 liveData {
@@ -54,6 +72,14 @@ constructor(
         uri?.let { newBlogFields.newImageUri = it }
         update.blogFields = newBlogFields
         setViewState(update)
+    }
+
+    fun getNewImageUri():Uri?{
+        getCurrentViewStateOrNew().let {blogViewState->
+            blogViewState.blogFields.let {
+                return it.newImageUri
+            }
+        }
     }
 
     fun clearNewBlogFields() {
