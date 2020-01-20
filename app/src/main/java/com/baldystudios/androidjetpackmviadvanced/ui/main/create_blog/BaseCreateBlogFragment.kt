@@ -15,6 +15,7 @@ import com.baldystudios.androidjetpackmviadvanced.di.Injectable
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
+import com.bumptech.glide.RequestManager
 import javax.inject.Inject
 
 
@@ -24,6 +25,9 @@ abstract class BaseCreateBlogFragment : Fragment(), Injectable {
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
+
+    @Inject
+    lateinit var requestManager: RequestManager
 
     lateinit var uiCommunicationListener: UICommunicationListener
 

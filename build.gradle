@@ -36,6 +36,8 @@ buildscript {
 
         leakCanaryVersion = '2.1'
 
+        imageCropperVersion = '2.8.0'
+
     }
     repositories {
         google()
