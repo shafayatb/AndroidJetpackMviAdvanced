@@ -20,7 +20,9 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.BaseBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.UpdateBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.ViewBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.BaseCreateBlogFragment
+import com.baldystudios.androidjetpackmviadvanced.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController
+import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController.*
 import com.baldystudios.androidjetpackmviadvanced.util.setUpNavigation
 import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
 import com.bumptech.glide.RequestManager
@@ -30,9 +32,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class MainActivity : BaseActivity(),
-    BottomNavController.NavGraphProvider,
-    BottomNavController.OnNavigationGraphChanged,
-    BottomNavController.OnNavigationReselectedListener,
+    NavGraphProvider,
+    OnNavigationGraphChanged,
+    OnNavigationReselectedListener,
     MainDependencyProvider {
 
     @Inject
@@ -134,18 +136,33 @@ class MainActivity : BaseActivity(),
         setContentView(R.layout.activity_main)
 
         setupActionBar()
-        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-        bottomNavigationView.setUpNavigation(bottomNavController, this)
-        if (savedInstanceState == null) {
-            bottomNavController.onNavigationItemSelected()
-        }
+        setupBottomNavigationView(savedInstanceState)
 
         subscribeObservers()
         restoreSession(savedInstanceState)
     }
 
+    private fun setupBottomNavigationView(savedInstanceState: Bundle?) {
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        bottomNavigationView.setUpNavigation(bottomNavController, this)
+        if (savedInstanceState == null) {
+            bottomNavController.setupBottomNavigationBackStack(null)
+            bottomNavController.onNavigationItemSelected()
+        } else {
+            (savedInstanceState[BOTTOM_NAV_BACKSTACK_KEY] as IntArray?)?.let { items ->
+                val backStack = BackStack()
+                backStack.addAll(items.toTypedArray())
+                bottomNavController.setupBottomNavigationBackStack(backStack)
+            }
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
+        outState.putIntArray(
+            BOTTOM_NAV_BACKSTACK_KEY,
+            bottomNavController.navigationBackStack.toIntArray()
+        )
         super.onSaveInstanceState(outState)
     }
 
