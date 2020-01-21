@@ -112,7 +112,12 @@ class BlogListAdapter(
         if (isQueryExhausted) {
             newList?.add(NO_MORE_RESULTS_BLOG_MARKAR)
         }
-        differ.submitList(newList)
+
+        val commitCallback = Runnable {
+            interaction?.restoreListPosition()
+        }
+
+        differ.submitList(newList, commitCallback)
     }
 
     fun preloadGlideImages(
@@ -173,5 +178,7 @@ class BlogListAdapter(
 
     interface Interaction {
         fun onItemSelected(position: Int, item: BlogPost)
+
+        fun restoreListPosition()
     }
 }

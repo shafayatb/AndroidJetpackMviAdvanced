@@ -1,6 +1,7 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.net.Uri
+import android.os.Parcelable
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 
 fun BlogViewModel.setQuery(query: String) {
@@ -103,4 +104,16 @@ fun BlogViewModel.onBlogPostUpdateSuccess(blogPost: BlogPost) {
     )
     setBlogPost(blogPost)
     updateListItem(blogPost)
+}
+
+fun BlogViewModel.setLayoutMangerState(layoutManagerState: Parcelable) {
+    val update = getCurrentViewStateOrNew()
+    update.blogFields.layoutManagerState = layoutManagerState
+    setViewState(update)
+}
+
+fun BlogViewModel.clearLayoutManagerState() {
+    val update = getCurrentViewStateOrNew()
+    update.blogFields.layoutManagerState = null
+    setViewState(update)
 }

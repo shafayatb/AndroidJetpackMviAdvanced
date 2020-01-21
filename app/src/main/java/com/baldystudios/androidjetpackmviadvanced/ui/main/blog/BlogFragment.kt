@@ -56,8 +56,21 @@ class BlogFragment : BaseBlogFragment(),
         initRecyclerView()
         subscribeObservers()
 
-        if (savedInstanceState == null) {
-            viewModel.loadFirstPage()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshFromCache()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+    }
+
+    private fun saveLayoutManagerState() {
+        blog_post_recyclerview.layoutManager?.onSaveInstanceState()?.let { lmState ->
+            viewModel.setLayoutMangerState(lmState)
         }
     }
 
@@ -193,6 +206,12 @@ class BlogFragment : BaseBlogFragment(),
     override fun onItemSelected(position: Int, item: BlogPost) {
         viewModel.setBlogPost(item)
         findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+    }
+
+    override fun restoreListPosition() {
+        viewModel.viewState.value?.blogFields?.layoutManagerState?.let { lmState ->
+            blog_post_recyclerview?.layoutManager?.onRestoreInstanceState(lmState)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
