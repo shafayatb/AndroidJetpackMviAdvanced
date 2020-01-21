@@ -61,11 +61,15 @@ class BlogFragment : BaseBlogFragment(),
     override fun onResume() {
         super.onResume()
         viewModel.refreshFromCache()
+        if(recyclerAdapter.itemCount == 0){
+            viewModel.loadFirstPage()
+        }
+
     }
 
     override fun onPause() {
         super.onPause()
-
+        saveLayoutManagerState()
     }
 
     private fun saveLayoutManagerState() {
