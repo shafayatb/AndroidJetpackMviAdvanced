@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.baldystudios.androidjetpackmviadvanced.R
+import com.baldystudios.androidjetpackmviadvanced.models.AUTH_TOKEN_BUNDLE_KEY
+import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.AuthActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.BaseAccountFragment
@@ -20,14 +22,24 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.ViewBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.BaseCreateBlogFragment
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController
 import com.baldystudios.androidjetpackmviadvanced.util.setUpNavigation
+import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
+import com.bumptech.glide.RequestManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
 class MainActivity : BaseActivity(),
     BottomNavController.NavGraphProvider,
     BottomNavController.OnNavigationGraphChanged,
-    BottomNavController.OnNavigationReselectedListener {
+    BottomNavController.OnNavigationReselectedListener,
+    MainDependencyProvider {
+
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
+
+    @Inject
+    lateinit var requestManager: RequestManager
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -129,6 +141,20 @@ class MainActivity : BaseActivity(),
         }
 
         subscribeObservers()
+        restoreSession(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun restoreSession(savedInstanceState: Bundle?) {
+        savedInstanceState?.let { inState ->
+            inState[AUTH_TOKEN_BUNDLE_KEY]?.let { authToken ->
+                sessionManager.setValue(authToken as AuthToken)
+            }
+        }
     }
 
     fun subscribeObservers() {
@@ -163,4 +189,8 @@ class MainActivity : BaseActivity(),
             progress_bar.visibility = View.GONE
         }
     }
+
+    override fun getViewModelProviderFactory() = providerFactory
+
+    override fun getGlideRequestManager() = requestManager
 }

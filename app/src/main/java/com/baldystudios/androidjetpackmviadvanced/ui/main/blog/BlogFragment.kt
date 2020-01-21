@@ -86,7 +86,7 @@ class BlogFragment : BaseBlogFragment(),
             viewState?.let { blogViewState ->
                 recyclerAdapter.apply {
                     preloadGlideImages(
-                        requestManager,
+                        dependencyProvider.getGlideRequestManager(),
                         viewState.blogFields.blogList
                     )
 
@@ -167,7 +167,7 @@ class BlogFragment : BaseBlogFragment(),
 
             recyclerAdapter = BlogListAdapter(
                 this@BlogFragment,
-                requestManager
+                dependencyProvider.getGlideRequestManager()
             )
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {

@@ -42,9 +42,9 @@ class ChangePasswordFragment : BaseAccountFragment() {
     private fun subscribeObservers() {
 
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            stateChangeListener.onDataStateChange(dataState)
-            Log.d(TAG, "ChangePasswordFragment, DataState: $dataState")
             dataState?.let { accountDataState ->
+                stateChangeListener.onDataStateChange(accountDataState)
+                Log.d(TAG, "ChangePasswordFragment, DataState: $accountDataState")
                 accountDataState.data?.let { data ->
                     data.response?.let { event ->
                         if (event.peekContent().message == RESPONSE_PASSWORD_UPDATE_SUCCESS) {

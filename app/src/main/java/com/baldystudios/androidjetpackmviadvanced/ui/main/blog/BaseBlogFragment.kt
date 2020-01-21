@@ -14,20 +14,16 @@ import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.di.Injectable
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
+import com.baldystudios.androidjetpackmviadvanced.ui.main.MainDependencyProvider
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.BlogViewModel
-import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
-import com.bumptech.glide.RequestManager
-import javax.inject.Inject
 
 abstract class BaseBlogFragment : Fragment(), Injectable {
 
     val TAG: String = "AppDebug"
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-
-    @Inject
-    lateinit var requestManager: RequestManager
+    lateinit var dependencyProvider: MainDependencyProvider
 
     lateinit var viewModel: BlogViewModel
 
@@ -35,15 +31,44 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
 
     lateinit var uiCommunicationListener: UICommunicationListener
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel = activity?.run {
+            ViewModelProvider(
+                this,
+                dependencyProvider.getViewModelProviderFactory()
+            ).get(
+                BlogViewModel::class.java
+            )
+        } ?: throw Exception("Invalid Activity")
+
+        cancelActiveJobs()
+
+        //restore state after process death
+        savedInstanceState?.let { instate ->
+            (instate[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { blogViewState ->
+                viewModel.setViewState(blogViewState)
+            }
+        }
+    }
+
+    fun isViewModelInitialized() = ::viewModel.isInitialized
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
 
-        viewModel = activity?.run {
-            ViewModelProvider(this, providerFactory).get(BlogViewModel::class.java)
-        } ?: throw Exception("Invalid Activity")
+    }
 
-        cancelActiveJobs()
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isViewModelInitialized()) {
+            outState.putParcelable(
+                BLOG_VIEW_STATE_BUNDLE_KEY,
+                viewModel.viewState.value
+            )
+        }
+        super.onSaveInstanceState(outState)
     }
 
     /*
@@ -74,6 +99,12 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
             uiCommunicationListener = context as UICommunicationListener
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement UICommunicationListener")
+        }
+
+        try {
+            dependencyProvider = context as MainDependencyProvider
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement MainDependencyProvider")
         }
     }
 }
