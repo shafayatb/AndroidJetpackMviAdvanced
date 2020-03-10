@@ -35,7 +35,8 @@ class MainActivity : BaseActivity(),
     NavGraphProvider,
     OnNavigationGraphChanged,
     OnNavigationReselectedListener,
-    MainDependencyProvider {
+    MainDependencyProvider
+{
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -43,26 +44,29 @@ class MainActivity : BaseActivity(),
     @Inject
     lateinit var requestManager: RequestManager
 
+    override fun getViewModelProviderFactory() = providerFactory
+
+    override fun getGlideRequestManager() = requestManager
+
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private val bottomNavController by lazy(LazyThreadSafetyMode.NONE) {
         BottomNavController(
             this,
             R.id.main_nav_host_fragment,
-            R.id.nav_blog,
+            R.id.menu_nav_blog,
             this,
-            this
-        )
+            this)
     }
 
-    override fun getNavGraphId(itemId: Int) = when (itemId) {
-        R.id.nav_blog -> {
+    override fun getNavGraphId(itemId: Int) = when(itemId){
+        R.id.menu_nav_blog -> {
             R.navigation.nav_blog
         }
-        R.id.nav_create_blog -> {
+        R.id.menu_nav_create_blog -> {
             R.navigation.nav_create_blog
         }
-        R.id.nav_account -> {
+        R.id.menu_nav_account -> {
             R.navigation.nav_account
         }
         else -> {
@@ -75,20 +79,21 @@ class MainActivity : BaseActivity(),
         expandAppBar()
     }
 
-    private fun cancelActiveJobs() {
+    private fun cancelActiveJobs(){
         val fragments = bottomNavController.fragmentManager
             .findFragmentById(bottomNavController.containerId)
             ?.childFragmentManager
             ?.fragments
-
-        if (fragments != null) {
-            for (fragment in fragments) {
-                when (fragment) {
-                    is BaseAccountFragment -> fragment.cancelActiveJobs()
-
-                    is BaseBlogFragment -> fragment.cancelActiveJobs()
-
-                    is BaseCreateBlogFragment -> fragment.cancelActiveJobs()
+        if(fragments != null){
+            for(fragment in fragments){
+                if(fragment is BaseAccountFragment){
+                    fragment.cancelActiveJobs()
+                }
+                if(fragment is BaseBlogFragment){
+                    fragment.cancelActiveJobs()
+                }
+                if(fragment is BaseCreateBlogFragment){
+                    fragment.cancelActiveJobs()
                 }
             }
         }
@@ -98,37 +103,38 @@ class MainActivity : BaseActivity(),
     override fun onReselectNavItem(
         navController: NavController,
         fragment: Fragment
-    ) = when (fragment) {
+    ){
+        Log.d(TAG, "logInfo: onReSelectItem")
+        when(fragment){
 
-        is ViewBlogFragment -> {
-            navController.navigate(R.id.action_viewBlogFragment_to_home)
-        }
+            is ViewBlogFragment -> {
+                navController.navigate(R.id.action_viewBlogFragment_to_home)
+            }
 
-        is UpdateBlogFragment -> {
-            navController.navigate(R.id.action_updateBlogFragment_to_home)
-        }
+            is UpdateBlogFragment -> {
+                navController.navigate(R.id.action_updateBlogFragment_to_home)
+            }
 
-        is UpdateAccountFragment -> {
-            navController.navigate(R.id.action_updateAccountFragment_to_home)
-        }
+            is UpdateAccountFragment -> {
+                navController.navigate(R.id.action_updateAccountFragment_to_home)
+            }
 
-        is ChangePasswordFragment -> {
-            navController.navigate(R.id.action_changePasswordFragment_to_home)
-        }
+            is ChangePasswordFragment -> {
+                navController.navigate(R.id.action_changePasswordFragment_to_home)
+            }
 
-        else -> {
-            // do nothing
+            else -> {
+                // do nothing
+            }
         }
     }
 
-    override fun onBackPressed() = bottomNavController.onBackPressed()
-
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 
-        when (item?.itemId) {
+        when(item?.itemId){
             android.R.id.home -> onBackPressed()
         }
-        return super.onOptionsItemSelected(item!!)
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,42 +148,42 @@ class MainActivity : BaseActivity(),
         restoreSession(savedInstanceState)
     }
 
-    private fun setupBottomNavigationView(savedInstanceState: Bundle?) {
+    private fun setupBottomNavigationView(savedInstanceState: Bundle?){
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         bottomNavigationView.setUpNavigation(bottomNavController, this)
         if (savedInstanceState == null) {
             bottomNavController.setupBottomNavigationBackStack(null)
             bottomNavController.onNavigationItemSelected()
-        } else {
+        }
+        else{
             (savedInstanceState[BOTTOM_NAV_BACKSTACK_KEY] as IntArray?)?.let { items ->
-                val backStack = BackStack()
-                backStack.addAll(items.toTypedArray())
-                bottomNavController.setupBottomNavigationBackStack(backStack)
+                val backstack = BackStack()
+                backstack.addAll(items.toTypedArray())
+                bottomNavController.setupBottomNavigationBackStack(backstack)
             }
+        }
+    }
+
+    private fun restoreSession(savedInstanceState: Bundle?){
+        savedInstanceState?.get(AUTH_TOKEN_BUNDLE_KEY)?.let{ authToken ->
+            sessionManager.setValue(authToken as AuthToken)
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
-        outState.putIntArray(
-            BOTTOM_NAV_BACKSTACK_KEY,
-            bottomNavController.navigationBackStack.toIntArray()
-        )
         super.onSaveInstanceState(outState)
+
+        // save auth token
+        outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
+
+        // save backstack for bottom nav
+        outState.putIntArray(BOTTOM_NAV_BACKSTACK_KEY, bottomNavController.navigationBackStack.toIntArray())
     }
 
-    private fun restoreSession(savedInstanceState: Bundle?) {
-        savedInstanceState?.let { inState ->
-            inState[AUTH_TOKEN_BUNDLE_KEY]?.let { authToken ->
-                sessionManager.setValue(authToken as AuthToken)
-            }
-        }
-    }
-
-    fun subscribeObservers() {
-        sessionManager.cachedToken.observe(this, Observer { authToken ->
+    fun subscribeObservers(){
+        sessionManager.cachedToken.observe(this, Observer{ authToken ->
             Log.d(TAG, "MainActivity, subscribeObservers: ViewState: ${authToken}")
-            if (authToken == null || authToken.account_pk == -1 || authToken.token == null) {
+            if(authToken == null || authToken.account_pk == -1 || authToken.token == null){
                 navAuthActivity()
                 finish()
             }
@@ -188,26 +194,26 @@ class MainActivity : BaseActivity(),
         findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
     }
 
+    override fun onBackPressed() = bottomNavController.onBackPressed()
 
-    private fun setupActionBar() {
+    private fun setupActionBar(){
         setSupportActionBar(tool_bar)
     }
 
-    private fun navAuthActivity() {
+    private fun navAuthActivity(){
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
     }
 
-    override fun displayProgressBar(bool: Boolean) {
-        if (bool) {
+    override fun displayProgressBar(bool: Boolean){
+        if(bool){
             progress_bar.visibility = View.VISIBLE
-        } else {
+        }
+        else{
             progress_bar.visibility = View.GONE
         }
     }
 
-    override fun getViewModelProviderFactory() = providerFactory
 
-    override fun getGlideRequestManager() = requestManager
 }

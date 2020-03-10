@@ -19,17 +19,24 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_S
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.BlogViewModel
 
-abstract class BaseBlogFragment : Fragment(), Injectable {
+abstract class BaseBlogFragment : Fragment(), Injectable
+{
 
     val TAG: String = "AppDebug"
 
     lateinit var dependencyProvider: MainDependencyProvider
 
-    lateinit var viewModel: BlogViewModel
+    lateinit var uiCommunicationListener: UICommunicationListener
 
     lateinit var stateChangeListener: DataStateChangeListener
 
-    lateinit var uiCommunicationListener: UICommunicationListener
+    lateinit var viewModel: BlogViewModel
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,34 +45,34 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
             ViewModelProvider(
                 this,
                 dependencyProvider.getViewModelProviderFactory()
-            ).get(
-                BlogViewModel::class.java
-            )
-        } ?: throw Exception("Invalid Activity")
+            ).get(BlogViewModel::class.java)
+        }?: throw Exception("Invalid Activity")
 
         cancelActiveJobs()
 
-        //restore state after process death
-        savedInstanceState?.let { instate ->
-            (instate[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { blogViewState ->
-                viewModel.setViewState(blogViewState)
+        // Restore state after process death
+        savedInstanceState?.let { inState ->
+            (inState[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { viewState ->
+                viewModel.setViewState(viewState)
             }
         }
     }
 
-    fun isViewModelInitialized() = ::viewModel.isInitialized
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
-
+    fun cancelActiveJobs(){
+        viewModel.cancelActiveJobs()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        if (isViewModelInitialized()) {
+    fun isViewModelInitialized() = ::viewModel.isInitialized
 
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        if(isViewModelInitialized()){
             val viewState = viewModel.viewState.value
 
+            //clear the list. Don't want to save a large list to bundle.
             viewState?.blogFields?.blogList = ArrayList()
 
             outState.putParcelable(
@@ -79,7 +86,7 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
     /*
           @fragmentId is id of fragment from graph to be EXCLUDED from action back bar nav
         */
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
@@ -88,28 +95,25 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
         )
     }
 
-    fun cancelActiveJobs() {
-        viewModel.cancelActiveJobs()
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try {
+        try{
             stateChangeListener = context as DataStateChangeListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement DataStateChangeListener")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement DataStateChangeListener" )
         }
 
-        try {
+        try{
             uiCommunicationListener = context as UICommunicationListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement UICommunicationListener")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement UICommunicationListener" )
         }
 
-        try {
+        try{
             dependencyProvider = context as MainDependencyProvider
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement MainDependencyProvider")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement DependencyProvider" )
         }
+
     }
 }
