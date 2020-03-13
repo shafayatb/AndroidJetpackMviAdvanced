@@ -4,12 +4,14 @@ import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogCreateUpdateResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogListSearchResponse
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
 
+@MainScope
 interface OpenApiMainService {
 
     @GET("account/properties")

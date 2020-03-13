@@ -4,17 +4,17 @@ package com.baldystudios.androidjetpackmviadvanced.ui.auth
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
+import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.Response
@@ -25,11 +25,26 @@ import kotlinx.android.synthetic.main.fragment_forgot_password.*
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
-class ForgotPasswordFragment : BaseAuthFragment() {
+@AuthScope
+class ForgotPasswordFragment
+@Inject
+constructor(
+    viewModelFactory: ViewModelProvider.Factory
+) : Fragment(R.layout.fragment_forgot_password) {
+
+    val viewModel: AuthViewModel by viewModels {
+        viewModelFactory
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.cancelActiveJobs()
+    }
 
     lateinit var webView: WebView
 
@@ -37,12 +52,12 @@ class ForgotPasswordFragment : BaseAuthFragment() {
 
     val webInteractionCallback = object : OnWebInteractionCallback {
         override fun onSuccess(email: String) {
-            Log.d(TAG, "onSuccess: a reset link will be sent to $email")
+
             onPasswordResetLinkSent()
         }
 
         override fun onError(errorMessage: String) {
-            Log.e(TAG, "onError: $errorMessage")
+
 
             val dataState = DataState.error<Any>(
                 response = Response(errorMessage, ResponseType.Dialog())
@@ -51,7 +66,6 @@ class ForgotPasswordFragment : BaseAuthFragment() {
         }
 
         override fun onLoading(isLoading: Boolean) {
-            Log.d(TAG, "onLoading...")
 
             GlobalScope.launch(Main) {
                 stateChangeListener.onDataStateChange(
@@ -79,21 +93,13 @@ class ForgotPasswordFragment : BaseAuthFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_forgot_password, container, false)
-    }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         webView = webview
 
-        Log.d(TAG, "ForgotPasswordFragment: ${viewModel.hashCode()}")
+
 
         loadPasswordResetWebView()
 
@@ -135,7 +141,7 @@ class ForgotPasswordFragment : BaseAuthFragment() {
             stateChangeListener = context as DataStateChangeListener
         } catch (e: ClassCastException) {
 
-            Log.e(TAG, "$context must implement DataStateChangeListener.")
+
         }
     }
 

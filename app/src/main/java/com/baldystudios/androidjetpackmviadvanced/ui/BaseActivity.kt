@@ -3,20 +3,21 @@ package com.baldystudios.androidjetpackmviadvanced.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType.*
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.PERMISSIONS_REQUEST_READ_STORAGE
-import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-abstract class BaseActivity : DaggerAppCompatActivity(),
+abstract class BaseActivity : AppCompatActivity(),
     DataStateChangeListener,
     UICommunicationListener {
 
@@ -25,6 +26,13 @@ abstract class BaseActivity : DaggerAppCompatActivity(),
 
     @Inject
     lateinit var sessionManager: SessionManager
+
+    abstract fun inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        inject()
+        super.onCreate(savedInstanceState)
+    }
 
 
     override fun onDataStateChange(dataState: DataState<*>?) {

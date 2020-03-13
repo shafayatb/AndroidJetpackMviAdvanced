@@ -1,26 +1,36 @@
 package com.baldystudios.androidjetpackmviadvanced
 
-import android.app.Activity
 import android.app.Application
-import com.baldystudios.androidjetpackmviadvanced.di.AppInjector
+import com.baldystudios.androidjetpackmviadvanced.di.AppComponent
 import com.baldystudios.androidjetpackmviadvanced.di.DaggerAppComponent
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
-import javax.inject.Inject
+import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthComponent
 
-class BaseApplication : Application(), HasActivityInjector {
 
-    @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+class BaseApplication : Application() {
+
+    lateinit var appComponent: AppComponent
+
+    private var authComponent: AuthComponent? = null
 
     override fun onCreate() {
         super.onCreate()
-        AppInjector.init(this)
     }
 
-    override fun activityInjector(): AndroidInjector<Activity> = dispatchingAndroidInjector
+    fun authComponent(): AuthComponent{
+        if(authComponent == null){
+            authComponent = appComponent.authComponent().create()
+        }
+        return (authComponent as AuthComponent)
+    }
 
+    fun releaseAuthComponent(){
+        authComponent = null
+    }
+
+    fun initAppComponent(){
+        appComponent = DaggerAppComponent.builder()
+            .application(this)
+            .build()
+    }
 
 }

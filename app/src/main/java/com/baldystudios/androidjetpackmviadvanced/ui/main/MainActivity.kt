@@ -24,11 +24,10 @@ import com.baldystudios.androidjetpackmviadvanced.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController
 import com.baldystudios.androidjetpackmviadvanced.util.BottomNavController.*
 import com.baldystudios.androidjetpackmviadvanced.util.setUpNavigation
-import com.baldystudios.androidjetpackmviadvanced.viewmodels.ViewModelProviderFactory
+import com.baldystudios.androidjetpackmviadvanced.viewmodels.AuthViewModelFactory
 import com.bumptech.glide.RequestManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class MainActivity : BaseActivity(),
@@ -39,7 +38,7 @@ class MainActivity : BaseActivity(),
 {
 
     @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
+    lateinit var providerFactory: AuthViewModelFactory
 
     @Inject
     lateinit var requestManager: RequestManager

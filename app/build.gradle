@@ -82,14 +82,11 @@ dependencies {
     // Kotlin Extentions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$rootProject.room_version"
 
-    // Dagger2 core
+    // dagger
     implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
 
-    // Dagger Android
-    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
+
 
     // Jetpack Navigation Components
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.nav_version"

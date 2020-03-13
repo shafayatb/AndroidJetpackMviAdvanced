@@ -22,8 +22,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
-class AppModule{
+object AppModule{
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideRetrofitBuilder(): Retrofit.Builder{
@@ -33,6 +34,7 @@ class AppModule{
             .addConverterFactory(MoshiConverterFactory.create())
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideAppDb(app: Application): AppDatabase {
@@ -42,18 +44,21 @@ class AppModule{
             .build()
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideAuthTokenDao(db: AppDatabase): AuthTokenDao {
         return db.getAuthTokenDao()
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideAccountPropertiesDao(db: AppDatabase): AccountPropertiesDao {
         return db.getAccountPropertiesDao()
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideRequestOptions(): RequestOptions {
@@ -62,6 +67,7 @@ class AppModule{
             .error(R.drawable.default_image)
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideGlideInstance(application: Application, requestOptions: RequestOptions): RequestManager {
@@ -69,12 +75,14 @@ class AppModule{
             .setDefaultRequestOptions(requestOptions)
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideSharedPreferences(application: Application):SharedPreferences{
         return application.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     }
 
+    @JvmStatic
     @Singleton
     @Provides
     fun provideSharedPrefsEditor(sharedPreferences: SharedPreferences):SharedPreferences.Editor{

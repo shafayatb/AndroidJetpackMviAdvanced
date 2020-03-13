@@ -16,15 +16,13 @@ buildscript {
 
         retrofit = '2.6.1'
 
-        daggerVersion = '2.23.2'
+        daggerVersion = '2.25.4'
 
         lifecycleVersion = '2.2.0'
 
         coroutinesVersion= '1.2.1'
 
         room_version = '2.2.4'
-
-        daggerVersion = '2.23.2'
 
         nav_version = "2.3.0-alpha03"
 

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.api.auth.OpenApiAuthService
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.LoginResponse
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.RegistrationResponse
+import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
@@ -30,6 +31,7 @@ import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
+@AuthScope
 class AuthRepository
 @Inject
 constructor(
@@ -39,7 +41,7 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharedPrefsEditor: SharedPreferences.Editor
-): JobManager("AuthRepository") {
+) : JobManager("AuthRepository") {
     private val TAG: String = "AppDebug"
 
 

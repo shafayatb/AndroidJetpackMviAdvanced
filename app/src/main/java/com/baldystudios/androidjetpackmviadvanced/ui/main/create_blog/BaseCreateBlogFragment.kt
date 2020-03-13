@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.Injectable
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 import com.baldystudios.androidjetpackmviadvanced.ui.main.MainDependencyProvider
