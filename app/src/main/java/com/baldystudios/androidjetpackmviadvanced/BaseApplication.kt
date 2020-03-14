@@ -4,6 +4,7 @@ import android.app.Application
 import com.baldystudios.androidjetpackmviadvanced.di.AppComponent
 import com.baldystudios.androidjetpackmviadvanced.di.DaggerAppComponent
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthComponent
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainComponent
 
 
 class BaseApplication : Application() {
@@ -12,8 +13,11 @@ class BaseApplication : Application() {
 
     private var authComponent: AuthComponent? = null
 
+    private var mainComponent: MainComponent? = null
+
     override fun onCreate() {
         super.onCreate()
+        initAppComponent()
     }
 
     fun authComponent(): AuthComponent{
@@ -25,6 +29,17 @@ class BaseApplication : Application() {
 
     fun releaseAuthComponent(){
         authComponent = null
+    }
+
+    fun mainComponent(): MainComponent{
+        if(mainComponent == null){
+            mainComponent = appComponent.mainComponent().create()
+        }
+        return (mainComponent as MainComponent)
+    }
+
+    fun releaseMainComponent(){
+        mainComponent = null
     }
 
     fun initAppComponent(){

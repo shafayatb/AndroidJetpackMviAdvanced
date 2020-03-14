@@ -3,6 +3,7 @@ package com.baldystudios.androidjetpackmviadvanced.di.auth
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.AuthActivity
 import dagger.Subcomponent
 
+@AuthScope
 @Subcomponent(
     modules = [
         AuthModule::class,

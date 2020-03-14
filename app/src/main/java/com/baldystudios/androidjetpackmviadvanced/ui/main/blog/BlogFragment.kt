@@ -4,14 +4,19 @@ import android.app.SearchManager
 import android.content.Context.SEARCH_SERVICE
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,32 +25,72 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.baldystudios.androidjetpackmviadvanced.R
+import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_DATE_UPDATED
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_DESC
 import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
+import com.bumptech.glide.RequestManager
 import kotlinx.android.synthetic.main.fragment_blog.*
+import javax.inject.Inject
 
-class BlogFragment : BaseBlogFragment(),
+@MainScope
+class BlogFragment
+@Inject
+constructor(
+    private val viewModelFactory: ViewModelProvider.Factory,
+    private val requestManager: RequestManager
+) : BaseBlogFragment(R.layout.fragment_blog),
     BlogListAdapter.Interaction,
     SwipeRefreshLayout.OnRefreshListener {
+
+    val viewModel: BlogViewModel by viewModels {
+        viewModelFactory
+    }
 
     private lateinit var searchView: SearchView
     private lateinit var recyclerAdapter: BlogListAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_blog, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        cancelActiveJobs()
+
+        // Restore state after process death
+        savedInstanceState?.let { inState ->
+            (inState[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { viewState ->
+                viewModel.setViewState(viewState)
+            }
+        }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+
+        val viewState = viewModel.viewState.value
+
+        //clear the list. Don't want to save a large list to bundle.
+        viewState?.blogFields?.blogList = ArrayList()
+
+        outState.putParcelable(
+            BLOG_VIEW_STATE_BUNDLE_KEY,
+            viewState
+        )
+
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun cancelActiveJobs() {
+        viewModel.cancelActiveJobs()
+    }
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -87,7 +132,7 @@ class BlogFragment : BaseBlogFragment(),
             if (viewState != null) {
                 recyclerAdapter.apply {
                     preloadGlideImages(
-                        requestManager = dependencyProvider.getGlideRequestManager(),
+                        requestManager = requestManager,
                         list = viewState.blogFields.blogList
                     )
                     submitList(
@@ -189,7 +234,7 @@ class BlogFragment : BaseBlogFragment(),
 
             recyclerAdapter = BlogListAdapter(
                 this@BlogFragment,
-                dependencyProvider.getGlideRequestManager()
+               requestManager
 
             )
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
