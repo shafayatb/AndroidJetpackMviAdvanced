@@ -3,15 +3,14 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils
-import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepository
+import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.util.DataState
-import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_FILTER
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_ORDER
 import okhttp3.MediaType
@@ -22,7 +21,7 @@ class BlogViewModel
 @Inject
 constructor(
     private val sessionManager: SessionManager,
-    private val blogRepository: BlogRepository,
+    private val blogRepository: BlogRepositoryImpl,
     private val sharedPreferences: SharedPreferences,
     private val editor: SharedPreferences.Editor
 ) : BaseViewModel<BlogStateEvent, BlogViewState>() {
@@ -128,8 +127,6 @@ constructor(
 
         }
     }
-
-
 
 
     fun saveFilterOptions(filter: String, order: String) {

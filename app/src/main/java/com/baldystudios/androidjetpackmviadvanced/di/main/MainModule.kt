@@ -4,9 +4,7 @@ import com.baldystudios.androidjetpackmviadvanced.api.main.OpenApiMainService
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
 import com.baldystudios.androidjetpackmviadvanced.persistence.AppDatabase
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogPostDao
-import com.baldystudios.androidjetpackmviadvanced.repository.main.AccountRepository
-import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepository
-import com.baldystudios.androidjetpackmviadvanced.repository.main.CreateBlogRepository
+import com.baldystudios.androidjetpackmviadvanced.repository.main.*
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import dagger.Module
 import dagger.Provides
@@ -31,8 +29,8 @@ object MainModule {
         openApiMainService: OpenApiMainService,
         accountPropertiesDao: AccountPropertiesDao,
         sessionManager: SessionManager
-    ): AccountRepository {
-        return AccountRepository(
+    ): AccountRepositoryImpl {
+        return AccountRepositoryImpl(
             openApiMainService,
             accountPropertiesDao,
             sessionManager
@@ -53,8 +51,8 @@ object MainModule {
         openApiMainService: OpenApiMainService,
         blogPostDao: BlogPostDao,
         sessionManager: SessionManager
-    ): BlogRepository {
-        return BlogRepository(openApiMainService, blogPostDao, sessionManager)
+    ): BlogRepositoryImpl {
+        return BlogRepositoryImpl(openApiMainService, blogPostDao, sessionManager)
     }
 
     @JvmStatic

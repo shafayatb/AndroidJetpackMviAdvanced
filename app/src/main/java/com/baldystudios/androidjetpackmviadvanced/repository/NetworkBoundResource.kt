@@ -21,9 +21,8 @@ constructor(
         emitCache(markJobComplete = false)
 
         // ****** STEP 2: MAKE NETWORK CALL, SAVE RESULT TO CACHE ******
-        val apiResult = safeApiCall(dispatcher) { apiCall }
 
-        when (apiResult) {
+        when (val apiResult = safeApiCall(dispatcher) { apiCall }) {
             is ApiResult.GenericError -> {
                 emitError<ViewState>(
                     apiResult.errorMessage?.let { it } ?: UNKNOWN_ERROR,
@@ -71,16 +70,17 @@ constructor(
                 response = cacheResult,
                 stateEvent = jobCompleteMarker
             ) {
-                override fun handleSuccess(resultObj: CacheObj): DataState<ViewState> {
-                    return handleCacheSuccess()
+                override suspend fun handleSuccess(resultObj: CacheObj): DataState<ViewState> {
+                    return handleCacheSuccess(resultObj)
                 }
-            }.result
+            }.getResult()
+
         )
 
     }
 
-    abstract fun updateCache(networkObject: NetworkObj)
+    abstract suspend fun updateCache(networkObject: NetworkObj)
 
-    abstract fun handleCacheSuccess(): DataState<ViewState> // make sure to return null for stateEvent
+    abstract fun handleCacheSuccess(resultObj: CacheObj): DataState<ViewState> // make sure to return null for stateEvent
 
 }

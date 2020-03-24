@@ -2,22 +2,21 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 
 import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
-import com.baldystudios.androidjetpackmviadvanced.repository.main.AccountRepository
+import com.baldystudios.androidjetpackmviadvanced.repository.main.AccountRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.util.DataState
-import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import javax.inject.Inject
 
 class AccountViewModel
 @Inject
 constructor(
     val sessionManager: SessionManager,
-    val accountRepository: AccountRepository
+    val accountRepository: AccountRepositoryImpl
 ) : BaseViewModel<AccountStateEvent, AccountViewState>() {
 
 
