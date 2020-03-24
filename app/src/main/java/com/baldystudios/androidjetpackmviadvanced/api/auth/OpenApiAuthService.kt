@@ -1,10 +1,8 @@
 package com.baldystudios.androidjetpackmviadvanced.api.auth
 
-import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.LoginResponse
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.RegistrationResponse
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
-import com.baldystudios.androidjetpackmviadvanced.util.GenericApiResponse
 import retrofit2.http.Field
 import retrofit2.http.FieldMap
 import retrofit2.http.FormUrlEncoded

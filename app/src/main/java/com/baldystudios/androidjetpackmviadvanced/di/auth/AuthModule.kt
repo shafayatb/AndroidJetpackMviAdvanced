@@ -5,6 +5,7 @@ import com.baldystudios.androidjetpackmviadvanced.api.auth.OpenApiAuthService
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
 import com.baldystudios.androidjetpackmviadvanced.repository.auth.AuthRepository
+import com.baldystudios.androidjetpackmviadvanced.repository.auth.AuthRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import dagger.Module
 import dagger.Provides
@@ -33,7 +34,7 @@ object AuthModule {
         sharedPreferences: SharedPreferences,
         sharedPrefsEditor: SharedPreferences.Editor
     ): AuthRepository {
-        return AuthRepository(
+        return AuthRepositoryImpl(
             authTokenDao,
             accountPropertiesDao,
             openApiAuthService,

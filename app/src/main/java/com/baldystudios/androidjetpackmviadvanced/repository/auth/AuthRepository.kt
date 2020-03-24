@@ -5,8 +5,10 @@ import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthViewState
 import com.baldystudios.androidjetpackmviadvanced.util.StateEvent
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
+@FlowPreview
 @AuthScope
 interface AuthRepository {
 

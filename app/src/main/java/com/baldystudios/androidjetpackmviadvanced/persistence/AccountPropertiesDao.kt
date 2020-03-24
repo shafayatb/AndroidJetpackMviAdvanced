@@ -12,7 +12,7 @@ import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 interface AccountPropertiesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun intsertAndReplace(accountProperties: AccountProperties): Long
+    suspend fun insertAndReplace(accountProperties: AccountProperties): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOrIgnore(accountProperties: AccountProperties): Long
