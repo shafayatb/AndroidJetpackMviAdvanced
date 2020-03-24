@@ -5,12 +5,11 @@ import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.repository.main.AccountRepository
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
 import javax.inject.Inject
 
@@ -67,11 +66,12 @@ constructor(
                 return object : LiveData<DataState<AccountViewState>>() {
                     override fun onActive() {
                         super.onActive()
-                        value = DataState(
-                            null,
-                            Loading(false),
-                            null
-                        )
+                        value =
+                            DataState(
+                                null,
+                                Loading(false),
+                                null
+                            )
                     }
                 }
             }

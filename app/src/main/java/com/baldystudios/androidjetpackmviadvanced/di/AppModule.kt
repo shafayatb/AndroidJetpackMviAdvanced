@@ -30,7 +30,6 @@ object AppModule{
     fun provideRetrofitBuilder(): Retrofit.Builder{
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
-            .addCallAdapterFactory(LiveDataCallAdapterFactory())
             .addConverterFactory(MoshiConverterFactory.create())
     }
 

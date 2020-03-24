@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
-import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.Response
 import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType

@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType.*
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.PERMISSIONS_REQUEST_READ_STORAGE
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

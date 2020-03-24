@@ -18,12 +18,12 @@ interface OpenApiAuthService {
     fun login(
         @Field("username") username: String,
         @Field("password") password: String
-    ): LiveData<GenericApiResponse<LoginResponse>>
+    ): LoginResponse
 
     @POST("account/register")
     @FormUrlEncoded
     fun register(
         @FieldMap registerUserMap: Map<String, String>
-    ): LiveData<GenericApiResponse<RegistrationResponse>>
+    ): RegistrationResponse
 
 }

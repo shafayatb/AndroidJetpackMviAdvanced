@@ -6,7 +6,7 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils
 import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepository
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
@@ -116,11 +116,12 @@ constructor(
                 object : LiveData<DataState<BlogViewState>>() {
                     override fun onActive() {
                         super.onActive()
-                        value = DataState(
-                            null,
-                            Loading(false),
-                            null
-                        )
+                        value =
+                            DataState(
+                                null,
+                                Loading(false),
+                                null
+                            )
                     }
                 }
             }

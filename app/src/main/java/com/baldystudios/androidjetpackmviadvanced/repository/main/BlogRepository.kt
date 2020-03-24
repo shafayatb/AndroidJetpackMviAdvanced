@@ -15,7 +15,7 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.returnOrderedBlogQ
 import com.baldystudios.androidjetpackmviadvanced.repository.JobManager
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
-import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.Response
 import com.baldystudios.androidjetpackmviadvanced.ui.ResponseType
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState

@@ -12,17 +12,17 @@ import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 interface AccountPropertiesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun intsertAndReplace(accountProperties: AccountProperties): Long
+    suspend fun intsertAndReplace(accountProperties: AccountProperties): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertOrIgnore(accountProperties: AccountProperties): Long
+    suspend fun insertOrIgnore(accountProperties: AccountProperties): Long
 
     @Query("SELECT * FROM account_properties WHERE pk = :pk")
-    fun searchByPk(pk: Int): LiveData<AccountProperties>
+    suspend fun searchByPk(pk: Int): AccountProperties
 
     @Query("SELECT * FROM account_properties WHERE email = :email")
-    fun searchByEmail(email: String): AccountProperties?
+    suspend fun searchByEmail(email: String): AccountProperties?
 
     @Query("UPDATE account_properties SET email = :email, username= :username WHERE pk = :pk")
-    fun updateAccountProperties(pk: Int, email: String, username: String)
+    suspend fun updateAccountProperties(pk: Int, email: String, username: String)
 }

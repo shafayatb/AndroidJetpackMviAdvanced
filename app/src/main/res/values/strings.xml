@@ -71,4 +71,5 @@
     <string name="cancel">Cancel</string>
     <string name="apply">Apply</string>
     <string name="AuthNavHost">AuthNavHost</string>
+    <string name="invalid_login_credentials">Invalid login</string>
 </resources>

@@ -20,6 +20,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CREA
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.GALLERY_REQUEST_CODE
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_MUST_SELECT_IMAGE
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_SOMETHING_WRONG_WITH_IMAGE
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_CREATED

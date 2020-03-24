@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.repository.auth.AuthRepository
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.ui.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthViewState

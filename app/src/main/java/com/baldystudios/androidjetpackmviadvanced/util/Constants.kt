@@ -7,7 +7,12 @@ class Constants {
         const val BASE_URL = "https://open-api.xyz/api/"
         const val PASSWORD_RESET_URL = "https://open-api.xyz/password_reset/"
 
-        const val NETWORK_TIMEOUT = 3000L
+        const val UNKNOWN_ERROR = "Unknown error"
+        const val NETWORK_TIMEOUT = 6000L
+        const val CACHE_TIMEOUT = 2000L
+        const val NETWORK_ERROR = "Network error"
+        const val NETWORK_ERROR_TIMEOUT = "Network timeout"
+        const val CACHE_ERROR_TIMEOUT = "Cache timeout"
         const val TESTING_NETWORK_DELAY = 0L
         const val TESTING_CACHE_DELAY = 0L
 
