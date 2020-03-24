@@ -3,17 +3,16 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.baldystudios.androidjetpackmviadvanced.repository.main.CreateBlogRepository
+import com.baldystudios.androidjetpackmviadvanced.repository.main.CreateBlogRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.util.DataState
-import com.baldystudios.androidjetpackmviadvanced.ui.Loading
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogStateEvent.CreateNewBlogEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogStateEvent.None
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState.NewBlogFields
 import com.baldystudios.androidjetpackmviadvanced.util.AbsentLiveData
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import javax.inject.Inject
@@ -21,7 +20,7 @@ import javax.inject.Inject
 class CreateBlogViewModel
 @Inject
 constructor(
-    val createBlogRepository: CreateBlogRepository,
+    val createBlogRepository: CreateBlogRepositoryImpl,
     val sessionManager: SessionManager
 ) : BaseViewModel<CreateBlogStateEvent, CreateBlogViewState>() {
 
@@ -74,8 +73,8 @@ constructor(
         setViewState(update)
     }
 
-    fun getNewImageUri():Uri?{
-        getCurrentViewStateOrNew().let {blogViewState->
+    fun getNewImageUri(): Uri? {
+        getCurrentViewStateOrNew().let { blogViewState ->
             blogViewState.blogFields.let {
                 return it.newImageUri
             }
