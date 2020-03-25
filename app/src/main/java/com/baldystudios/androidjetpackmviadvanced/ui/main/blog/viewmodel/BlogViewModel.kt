@@ -1,24 +1,18 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils
 import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.INVALID_STATE_EVENT
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_FILTER
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_ORDER
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import javax.inject.Inject
-
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.cancel
@@ -38,7 +32,7 @@ constructor(
     private val blogRepository: BlogRepositoryImpl,
     private val sharedPreferences: SharedPreferences,
     private val editor: SharedPreferences.Editor
-): BaseViewModel<BlogViewState>(){
+) : BaseViewModel<BlogViewState>() {
 
     init {
         setBlogFilter(
@@ -93,11 +87,13 @@ constructor(
                 setUpdatedBody(body)
             }
         }
+
+        removeJobFromCounter(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {
         sessionManager.cachedToken.value?.let { authToken ->
-            val job: Flow<DataState<BlogViewState>> = when(stateEvent){
+            val job: Flow<DataState<BlogViewState>> = when (stateEvent) {
 
                 is BlogSearchEvent -> {
                     clearLayoutManagerState()
@@ -156,7 +152,7 @@ constructor(
                 }
 
                 else -> {
-                    flow{
+                    flow {
                         emit(
                             DataState.error(
                                 response = Response(
@@ -171,7 +167,7 @@ constructor(
                 }
             }
             launchJob(stateEvent, job)
-        }?: sessionManager.logout()
+        } ?: sessionManager.logout()
 
     }
 
@@ -179,7 +175,7 @@ constructor(
         return BlogViewState()
     }
 
-    fun saveFilterOptions(filter: String, order: String){
+    fun saveFilterOptions(filter: String, order: String) {
         editor.putString(BLOG_FILTER, filter)
         editor.apply()
 
@@ -187,7 +183,7 @@ constructor(
         editor.apply()
     }
 
-    fun cancelActiveJobs(){
+    fun cancelActiveJobs() {
         viewModelScope.cancel()
     }
 

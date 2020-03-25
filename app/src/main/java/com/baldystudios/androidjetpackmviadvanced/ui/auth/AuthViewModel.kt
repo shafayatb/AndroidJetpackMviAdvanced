@@ -33,14 +33,6 @@ constructor(
             setAuthToken(authToken)
         }
 
-        data.registrationFields?.let { registrationFields ->
-            setRegistrationFields(registrationFields)
-        }
-
-        data.loginFields?.let { loginFields ->
-            setLoginFields(loginFields)
-        }
-
         removeJobFromCounter(stateEvent)
     }
 

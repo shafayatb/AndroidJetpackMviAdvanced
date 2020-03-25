@@ -3,6 +3,7 @@ package com.baldystudios.androidjetpackmviadvanced.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.activity.viewModels
@@ -16,43 +17,41 @@ import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.MainActivity
 import kotlinx.android.synthetic.main.activity_auth.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
-class AuthActivity : BaseActivity() {
-
-    @Inject
-    lateinit var providerFactory: ViewModelProvider.Factory
+@FlowPreview
+@ExperimentalCoroutinesApi
+class AuthActivity : BaseActivity()
+{
 
     @Inject
     lateinit var fragmentFactory: FragmentFactory
+
+    @Inject
+    lateinit var providerFactory: ViewModelProvider.Factory
 
     val viewModel: AuthViewModel by viewModels {
         providerFactory
     }
 
-    override fun inject() {
-        (application as BaseApplication).authComponent()
-            .inject(this)
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        inject()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)
-
         subscribeObservers()
         onRestoreInstanceState()
     }
 
-    private fun onRestoreInstanceState() {
-        val host = supportFragmentManager
-            .findFragmentById(R.id.auth_fragment_container)
+    fun onRestoreInstanceState(){
+        val host = supportFragmentManager.findFragmentById(R.id.auth_fragment_container)
         host?.let {
-
+            // do nothing
         } ?: createNavHost()
     }
 
-    private fun createNavHost() {
+    private fun createNavHost(){
         val navHost = AuthNavHostFragment.create(
             R.navigation.auth_nav_graph
         )
@@ -71,60 +70,60 @@ class AuthActivity : BaseActivity() {
         checkPreviousAuthUser()
     }
 
-    override fun expandAppBar() {
+    private fun subscribeObservers(){
 
-    }
+        viewModel.viewState.observe(this, Observer{ viewState ->
+            Log.d(TAG, "AuthActivity, subscribeObservers: AuthViewState: ${viewState}")
+            viewState.authToken?.let{
+                sessionManager.login(it)
+            }
 
-    fun subscribeObservers() {
+            displayProgressBar(viewModel.areAnyJobsActive())
+        })
 
-        viewModel.dataState.observe(this, Observer { dataState ->
-
-            onDataStateChange(dataState)
-
-            dataState.data?.let { data ->
-                data.data?.let { event ->
-                    event.getContentIfNotHandled()?.let {
-                        it.authToken?.let { authToken ->
-                            Log.d(TAG, "AuthActivity, DataState: $authToken")
-                            viewModel.setAuthToken(authToken)
-                        }
-                    }
+        sessionManager.cachedToken.observe(this, Observer{ dataState ->
+            Log.d(TAG, "AuthActivity, subscribeObservers: AuthDataState: ${dataState}")
+            dataState.let{ authToken ->
+                if(authToken != null && authToken.account_pk != -1 && authToken.token != null){
+                    navMainActivity()
                 }
-
-            }
-
-        })
-
-        viewModel.viewState.observe(this, Observer {
-            it.authToken?.let { authToken ->
-                sessionManager.login(authToken)
             }
         })
-
-        sessionManager.cachedToken.observe(this, Observer { authToken ->
-
-            Log.d(TAG, "AuthActivity: subscribeObservers: AuthToken $authToken")
-
-            if (authToken != null && authToken.account_pk != -1 && authToken.token != null) {
-                navMainActivity()
-            }
-
-        })
-
     }
 
-    fun checkPreviousAuthUser() {
-        viewModel.setStateEvent(AuthStateEvent.CheckPreviousAuthEvent())
-    }
-
-    private fun navMainActivity() {
+    fun navMainActivity(){
+        Log.d(TAG, "navMainActivity: called.")
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
         (application as BaseApplication).releaseAuthComponent()
     }
 
-    override fun displayProgressBar(bool: Boolean) {
-        progress_bar.visibility = if (bool) VISIBLE else GONE
+    private fun checkPreviousAuthUser(){
+        viewModel.setStateEvent(AuthStateEvent.CheckPreviousAuthEvent())
     }
+
+    private fun onFinishCheckPreviousAuthUser(){
+        fragment_container.visibility = VISIBLE
+    }
+
+    override fun inject() {
+        (application as BaseApplication).authComponent()
+            .inject(this)
+    }
+
+    override fun displayProgressBar(isLoading: Boolean){
+        if(isLoading){
+            progress_bar.visibility = VISIBLE
+        }
+        else{
+            progress_bar.visibility = View.GONE
+        }
+    }
+
+    override fun expandAppBar() {
+        // ignore
+    }
+
+
 }
