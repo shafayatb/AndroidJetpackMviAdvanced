@@ -3,8 +3,8 @@ package com.baldystudios.androidjetpackmviadvanced.ui.auth.state
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 
 data class AuthViewState(
-    var registrationFields: RegistrationFields? = RegistrationFields(),
-    var loginFields: LoginFields? = LoginFields(),
+    var registrationFields: RegistrationFields? = null,
+    var loginFields: LoginFields? = null,
     var authToken: AuthToken? = null
 )
 
