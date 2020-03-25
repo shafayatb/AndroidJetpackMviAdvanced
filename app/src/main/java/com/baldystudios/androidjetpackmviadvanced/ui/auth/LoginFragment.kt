@@ -62,7 +62,7 @@ constructor(
                 loginFields.login_email?.let { email -> input_email.setText(email) }
                 loginFields.login_password?.let { password -> input_password.setText(password) }
             }
-            uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+
         })
     }
 

@@ -73,7 +73,7 @@ constructor(
                         confirmPassword
                     )
                 }
-                uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+
             }
         })
     }
