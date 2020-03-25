@@ -77,8 +77,17 @@ class AuthActivity : BaseActivity()
             viewState.authToken?.let{
                 sessionManager.login(it)
             }
+        })
 
+        viewModel.activeJobCounter.observe(this, Observer { jobCounter ->
             displayProgressBar(viewModel.areAnyJobsActive())
+        })
+
+        viewModel.errorState.observe(this, Observer { stateMessage ->
+
+            stateMessage?.let {
+                onResponseReceived(it.response)
+            }
         })
 
         sessionManager.cachedToken.observe(this, Observer{ dataState ->
@@ -104,7 +113,7 @@ class AuthActivity : BaseActivity()
     }
 
     private fun onFinishCheckPreviousAuthUser(){
-        fragment_container.visibility = VISIBLE
+        fragment_container.visibility = View.VISIBLE
     }
 
     override fun inject() {
@@ -114,7 +123,7 @@ class AuthActivity : BaseActivity()
 
     override fun displayProgressBar(isLoading: Boolean){
         if(isLoading){
-            progress_bar.visibility = VISIBLE
+            progress_bar.visibility = View.VISIBLE
         }
         else{
             progress_bar.visibility = View.GONE
@@ -127,3 +136,4 @@ class AuthActivity : BaseActivity()
 
 
 }
+

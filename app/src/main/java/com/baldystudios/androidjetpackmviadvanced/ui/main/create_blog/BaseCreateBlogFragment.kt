@@ -11,10 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.ui.DataStateChangeListener
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
-import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CREATE_BLOG_VIEW_STATE_BUNDLE_KEY
-import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState
 
 
 abstract class BaseCreateBlogFragment
@@ -28,7 +25,6 @@ constructor(
     lateinit var uiCommunicationListener: UICommunicationListener
 
     lateinit var stateChangeListener: DataStateChangeListener
-
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

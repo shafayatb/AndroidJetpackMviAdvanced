@@ -1,5 +1,7 @@
 package com.baldystudios.androidjetpackmviadvanced.util
 
+import com.baldystudios.androidjetpackmviadvanced.ui.AreYouSureCallback
+
 data class StateMessage(val response: Response)
 
 data class Response(
@@ -13,6 +15,10 @@ sealed class UIComponentType{
     class Toast: UIComponentType()
 
     class Dialog: UIComponentType()
+
+    class AreYouSureDialog(
+        val callback: AreYouSureCallback
+    ): UIComponentType()
 
     class None: UIComponentType()
 }

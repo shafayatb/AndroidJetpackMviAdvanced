@@ -14,7 +14,7 @@ fun Activity.displayToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun Activity.displaySuccesDialog(message: String?) {
+fun Activity.displaySuccessDialog(message: String?) {
     MaterialDialog(this)
         .show {
             title(R.string.text_success)
