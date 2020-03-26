@@ -54,12 +54,12 @@ constructor(
         data.blogFields.let { blogFields ->
 
             blogFields.blogList?.let { blogList ->
-                setBlogListData(blogList)
+                handleIncomingBlogListData(data)
             }
 
-//            blogFields.isQueryExhausted?.let { isQueryExhausted ->
-//                setQueryExhausted(isQueryExhausted)
-//            }
+            blogFields.isQueryExhausted?.let { isQueryExhausted ->
+                setQueryExhausted(isQueryExhausted)
+            }
         }
 
         data.viewBlogFields.let { viewBlogFields ->
