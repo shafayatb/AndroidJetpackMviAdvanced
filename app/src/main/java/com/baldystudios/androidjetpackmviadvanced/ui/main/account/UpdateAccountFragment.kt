@@ -13,8 +13,12 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.ACCOUNT_
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
 import kotlinx.android.synthetic.main.fragment_update_account.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @MainScope
 class UpdateAccountFragment
 @Inject
@@ -75,12 +79,6 @@ constructor(
     }
 
     private fun subscribeObservers() {
-        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            dataState?.let {
-                stateChangeListener.onDataStateChange(it)
-                Log.d(TAG, "UpdateAccountFragment, DataState: $it")
-            }
-        })
 
         viewModel.viewState.observe(viewLifecycleOwner, Observer { accountViewState ->
             accountViewState?.let { viewState ->
@@ -88,6 +86,17 @@ constructor(
                     Log.d(TAG, "UpdateAccountFragment, ViewState: $it")
                     setAccountDataFields(it)
                 }
+            }
+        })
+
+        viewModel.activeJobCounter.observe(viewLifecycleOwner, Observer { jobCounter ->
+            uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+        })
+
+        viewModel.errorState.observe(viewLifecycleOwner, Observer { stateMessage ->
+
+            stateMessage?.let {
+                uiCommunicationListener.onResponseReceived(it.response)
             }
         })
     }
@@ -109,6 +118,6 @@ constructor(
                 input_username.text.toString()
             )
         )
-        stateChangeListener.hideSoftKeyboard()
+        uiCommunicationListener.hideSoftKeyboard()
     }
 }

@@ -16,8 +16,12 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountS
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_PASSWORD_UPDATE_SUCCESS
 import kotlinx.android.synthetic.main.fragment_change_password.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 @MainScope
 class ChangePasswordFragment
 @Inject
@@ -71,20 +75,15 @@ constructor(
 
     private fun subscribeObservers() {
 
-        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            dataState?.let { accountDataState ->
-                stateChangeListener.onDataStateChange(accountDataState)
-                Log.d(TAG, "ChangePasswordFragment, DataState: $accountDataState")
-                accountDataState.data?.let { data ->
-                    data.response?.let { event ->
-                        if (event.peekContent().message == RESPONSE_PASSWORD_UPDATE_SUCCESS) {
-                            stateChangeListener.hideSoftKeyboard()
-                            findNavController().popBackStack()
-                        }
-                    }
-                }
-            }
+        viewModel.activeJobCounter.observe(viewLifecycleOwner, Observer { jobCounter ->
+            uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+        })
 
+        viewModel.errorState.observe(viewLifecycleOwner, Observer { stateMessage ->
+
+            stateMessage?.let {
+                uiCommunicationListener.onResponseReceived(it.response)
+            }
         })
 
     }

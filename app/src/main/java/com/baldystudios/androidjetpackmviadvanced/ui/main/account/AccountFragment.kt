@@ -93,28 +93,23 @@ constructor(
 
     private fun subscribeObservers() {
 
-        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            dataState?.let { accountDataSate ->
-                stateChangeListener.onDataStateChange(accountDataSate)
-                accountDataSate.data?.let { data ->
-                    data.data?.let { event ->
-                        event.getContentIfNotHandled()?.let { accountViewState ->
-                            accountViewState.accountProperties?.let { accountProperties ->
-                                Log.d(TAG, "AccountFragment, DataState: $accountProperties")
-                                viewModel.setAccountPropertiesData(accountProperties)
-                            }
-                        }
-                    }
-                }
-            }
-        })
-
         viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
             viewState?.let { accountViewState ->
                 accountViewState.accountProperties?.let {
                     Log.d(TAG, "AccountFragment, ViewState: $it")
                     setAccountDataFields(it)
                 }
+            }
+        })
+
+        viewModel.activeJobCounter.observe(viewLifecycleOwner, Observer { jobCounter ->
+            uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+        })
+
+        viewModel.errorState.observe(viewLifecycleOwner, Observer { stateMessage ->
+
+            stateMessage?.let {
+                uiCommunicationListener.onResponseReceived(it.response)
             }
         })
 

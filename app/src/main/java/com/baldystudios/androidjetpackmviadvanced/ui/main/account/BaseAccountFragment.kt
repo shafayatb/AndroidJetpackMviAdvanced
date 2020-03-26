@@ -11,8 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.ACCOUNT_VIEW_STATE_BUNDLE_KEY
-import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
+import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 
 abstract class BaseAccountFragment
 constructor(
@@ -22,7 +21,7 @@ constructor(
 
     val TAG: String = "AppDebug"
 
-    lateinit var stateChangeListener: DataStateChangeListener
+    lateinit var uiCommunicationListener: UICommunicationListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,9 +42,9 @@ constructor(
     override fun onAttach(context: Context) {
         super.onAttach(context)
         try {
-            stateChangeListener = context as DataStateChangeListener
+            uiCommunicationListener = context as UICommunicationListener
         } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement DataStateChangeListener")
+            Log.e(TAG, "$context must implement UICommunicationListener")
         }
 
     }
