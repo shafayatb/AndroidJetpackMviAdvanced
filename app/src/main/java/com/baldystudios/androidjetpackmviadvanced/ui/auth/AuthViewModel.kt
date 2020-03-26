@@ -34,7 +34,7 @@ constructor(
             setAuthToken(authToken)
         }
 
-        removeJobFromCounter(stateEvent)
+        _activeJobCounter.removeJobFromCounter(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {
@@ -112,9 +112,7 @@ constructor(
         setViewState(update)
     }
 
-    fun cancelActiveJobs() {
-        viewModelScope.cancel()
-    }
+
 
     override fun onCleared() {
         super.onCleared()

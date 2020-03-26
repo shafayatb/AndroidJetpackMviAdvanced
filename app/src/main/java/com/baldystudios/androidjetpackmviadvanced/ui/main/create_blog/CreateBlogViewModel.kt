@@ -101,10 +101,6 @@ constructor(
         setViewState(update)
     }
 
-    fun cancelActiveJobs() {
-        viewModelScope.cancel()
-    }
-
     override fun onCleared() {
         super.onCleared()
         cancelActiveJobs()

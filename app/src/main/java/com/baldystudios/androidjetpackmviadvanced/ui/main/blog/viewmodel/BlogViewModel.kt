@@ -88,7 +88,7 @@ constructor(
             }
         }
 
-        removeJobFromCounter(stateEvent)
+        _activeJobCounter.removeJobFromCounter(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {
@@ -183,9 +183,6 @@ constructor(
         editor.apply()
     }
 
-    fun cancelActiveJobs() {
-        viewModelScope.cancel()
-    }
 
     override fun onCleared() {
         super.onCleared()

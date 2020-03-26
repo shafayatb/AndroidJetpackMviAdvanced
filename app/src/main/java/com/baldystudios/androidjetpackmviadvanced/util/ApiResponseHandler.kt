@@ -1,6 +1,7 @@
 package com.baldystudios.androidjetpackmviadvanced.util
 
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.NETWORK_ERROR
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.NETWORK_ERROR
+
 
 abstract class ApiResponseHandler <ViewState, Data>(
     private val response: ApiResult<Data?>,
