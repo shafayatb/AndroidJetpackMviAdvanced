@@ -33,3 +33,8 @@ sealed class MessageType{
 
     class None: MessageType()
 }
+
+interface StateMessageCallback{
+
+    fun removeMessageFromStack()
+}

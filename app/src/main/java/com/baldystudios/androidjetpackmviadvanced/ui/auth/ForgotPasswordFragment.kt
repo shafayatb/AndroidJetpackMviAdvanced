@@ -17,10 +17,7 @@ import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.ForgotPasswordFragment.WebAppInterface.OnWebInteractionCallback
-import com.baldystudios.androidjetpackmviadvanced.util.Constants
-import com.baldystudios.androidjetpackmviadvanced.util.MessageType
-import com.baldystudios.androidjetpackmviadvanced.util.Response
-import com.baldystudios.androidjetpackmviadvanced.util.UIComponentType
+import com.baldystudios.androidjetpackmviadvanced.util.*
 import kotlinx.android.synthetic.main.fragment_forgot_password.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -53,11 +50,16 @@ constructor(
         override fun onError(errorMessage: String) {
             Log.e(TAG, "onError: $errorMessage")
             uiCommunicationListener.onResponseReceived(
-                Response(
+                response = Response(
                     message = errorMessage,
                     uiComponentType = UIComponentType.Dialog(),
                     messageType = MessageType.Error()
-                )
+                ),
+                stateMessageCallback = object: StateMessageCallback {
+                    override fun removeMessageFromStack() {
+                        viewModel.clearStateMessage()
+                    }
+                }
             )
         }
 

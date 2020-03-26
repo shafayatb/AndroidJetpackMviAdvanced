@@ -10,7 +10,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.*
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.util.*
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.INVALID_STATE_EVENT
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.INVALID_STATE_EVENT
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_FILTER
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_ORDER
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,7 +45,7 @@ constructor(
             sharedPreferences.getString(
                 BLOG_ORDER,
                 BlogQueryUtils.BLOG_ORDER_ASC
-            )
+            )?: ""
         )
     }
 

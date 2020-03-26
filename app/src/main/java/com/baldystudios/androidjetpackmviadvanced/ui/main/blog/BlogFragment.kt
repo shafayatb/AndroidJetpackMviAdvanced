@@ -36,6 +36,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_S
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling
+import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
 import com.bumptech.glide.RequestManager
 import kotlinx.android.synthetic.main.fragment_blog.*
@@ -147,14 +148,17 @@ constructor(
             uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
         })
 
-        viewModel.errorState.observe(viewLifecycleOwner, Observer { stateMessage ->
+        viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
 
             stateMessage?.let {
-                if(ErrorHandling.isPaginationDone(it.response.message)){
-                    viewModel.setQueryExhausted(true)
-                    viewModel.errorStack.remove(it)
-                }
-                uiCommunicationListener.onResponseReceived(it.response)
+                uiCommunicationListener.onResponseReceived(
+                    response = it.response,
+                    stateMessageCallback = object: StateMessageCallback {
+                        override fun removeMessageFromStack() {
+                            viewModel.clearStateMessage()
+                        }
+                    }
+                )
             }
         })
     }

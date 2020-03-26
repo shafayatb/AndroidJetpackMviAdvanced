@@ -2,11 +2,11 @@ package com.baldystudios.androidjetpackmviadvanced.repository
 
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ApiResult.*
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.CACHE_ERROR_TIMEOUT
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.CACHE_TIMEOUT
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.NETWORK_ERROR_TIMEOUT
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.NETWORK_TIMEOUT
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.UNKNOWN_ERROR
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.CACHE_ERROR_TIMEOUT
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.NETWORK_ERROR_TIMEOUT
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +25,7 @@ suspend fun <T> safeApiCall(
     return withContext(dispatcher) {
         try {
             // throws TimeoutCancellationException
-            withTimeout(NETWORK_TIMEOUT){
+            withTimeout(NETWORK_TIMEOUT) {
                 Success(apiCall.invoke())
             }
         } catch (throwable: Throwable) {
@@ -63,7 +63,7 @@ suspend fun <T> safeCacheCall(
     return withContext(dispatcher) {
         try {
             // throws TimeoutCancellationException
-            withTimeout(CACHE_TIMEOUT){
+            withTimeout(CACHE_TIMEOUT) {
                 CacheResult.Success(cacheCall.invoke())
             }
         } catch (throwable: Throwable) {
@@ -84,7 +84,7 @@ fun <ViewState> emitError(
     message: String,
     uiComponentType: UIComponentType,
     stateEvent: StateEvent?
-): Flow<DataState<ViewState>> = flow{
+): Flow<DataState<ViewState>> = flow {
     emit(
         DataState.error(
             response = Response(

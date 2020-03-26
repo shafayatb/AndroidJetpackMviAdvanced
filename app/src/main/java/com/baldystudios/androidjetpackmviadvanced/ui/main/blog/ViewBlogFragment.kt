@@ -12,23 +12,22 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.ui.AreYouSureCallback
-import com.baldystudios.androidjetpackmviadvanced.ui.UIMessage
-import com.baldystudios.androidjetpackmviadvanced.ui.UIMessageType
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
-import com.baldystudios.androidjetpackmviadvanced.util.DateUtils
-import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
+import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.bumptech.glide.RequestManager
 import kotlinx.android.synthetic.main.fragment_view_blog.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
-@MainScope
+@FlowPreview
+@ExperimentalCoroutinesApi
 class ViewBlogFragment
 @Inject
 constructor(
@@ -42,9 +41,7 @@ constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         cancelActiveJobs()
-
         // Restore state after process death
         savedInstanceState?.let { inState ->
             (inState[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { viewState ->
@@ -53,8 +50,11 @@ constructor(
         }
     }
 
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
     override fun onSaveInstanceState(outState: Bundle) {
-
         val viewState = viewModel.viewState.value
 
         //clear the list. Don't want to save a large list to bundle.
@@ -64,7 +64,6 @@ constructor(
             BLOG_VIEW_STATE_BUNDLE_KEY,
             viewState
         )
-
         super.onSaveInstanceState(outState)
     }
 
@@ -77,7 +76,7 @@ constructor(
         setHasOptionsMenu(true)
         subscribeObservers()
         checkIsAuthorOfBlogPost()
-        stateChangeListener.expandAppBar()
+        uiCommunicationListener.expandAppBar()
 
         delete_button.setOnClickListener {
             confirmDeleteRequest()
@@ -94,13 +93,18 @@ constructor(
             override fun cancel() {
                 // ignore
             }
-
         }
-        uiCommunicationListener.onUIMessageReceived(
-            UIMessage(
-                getString(R.string.are_you_sure_delete),
-                UIMessageType.AreYouSureDialog(callback)
-            )
+        uiCommunicationListener.onResponseReceived(
+            response = Response(
+                message = getString(R.string.are_you_sure_delete),
+                uiComponentType = UIComponentType.AreYouSureDialog(callback),
+                messageType = MessageType.Info()
+            ),
+            stateMessageCallback = object : StateMessageCallback {
+                override fun removeMessageFromStack() {
+                    viewModel.clearStateMessage()
+                }
+            }
         )
     }
 
@@ -116,33 +120,32 @@ constructor(
     }
 
     fun subscribeObservers() {
-        viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            stateChangeListener.onDataStateChange(dataState)
-
-            if (dataState != null) {
-                dataState.data?.let { data ->
-                    data.data?.getContentIfNotHandled()?.let { viewState ->
-                        viewModel.setIsAuthorOfBlogPost(
-                            viewState.viewBlogFields.isAuthorOfBlogPost
-                        )
-                    }
-                    data.response?.peekContent()?.let { response ->
-                        if (response.message.equals(SUCCESS_BLOG_DELETED)) {
-                            viewModel.removeDeletedBlogPost()
-                            findNavController().popBackStack()
-                        }
-                    }
-                }
-            }
-        })
 
         viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
             viewState.viewBlogFields.blogPost?.let { blogPost ->
                 setBlogProperties(blogPost)
             }
 
-            if (viewState.viewBlogFields.isAuthorOfBlogPost) {
+            if (viewState.viewBlogFields.isAuthorOfBlogPost == true) {
                 adaptViewToAuthorMode()
+            }
+        })
+
+        viewModel.activeJobCounter.observe(viewLifecycleOwner, Observer { jobCounter ->
+            uiCommunicationListener.displayProgressBar(viewModel.areAnyJobsActive())
+        })
+
+        viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
+
+            stateMessage?.let {
+                uiCommunicationListener.onResponseReceived(
+                    response = it.response,
+                    stateMessageCallback = object : StateMessageCallback {
+                        override fun removeMessageFromStack() {
+                            viewModel.clearStateMessage()
+                        }
+                    }
+                )
             }
         })
     }
@@ -183,11 +186,9 @@ constructor(
     private fun navUpdateBlogFragment() {
         try {
             // prep for next fragment
-            viewModel.setUpdatedBlogFields(
-                viewModel.getBlogPost().title,
-                viewModel.getBlogPost().body,
-                viewModel.getBlogPost().image.toUri()
-            )
+            viewModel.setUpdatedTitle(viewModel.getBlogPost().title)
+            viewModel.setUpdatedBody(viewModel.getBlogPost().body)
+            viewModel.setUpdatedUri(viewModel.getBlogPost().image.toUri())
             findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
         } catch (e: Exception) {
             // send error report or something. These fields should never be null. Not possible

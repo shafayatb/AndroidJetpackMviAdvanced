@@ -3,12 +3,12 @@ package com.baldystudios.androidjetpackmviadvanced.util
 import androidx.lifecycle.MutableLiveData
 import kotlinx.android.parcel.IgnoredOnParcel
 
-const val ERROR_STACK_BUNDLE_KEY = "com.baldystudios.androidjetpackmviadvanced.util.ErrorStack"
+const val MESSAGE_STACK_BUNDLE_KEY = "com.baldystudios.androidjetpackmviadvanced.util.MessageStack"
 
-class ErrorStack: ArrayList<StateMessage>() {
+class MessageStack: ArrayList<StateMessage>() {
 
     @IgnoredOnParcel
-    val stateError: MutableLiveData<StateMessage> = MutableLiveData()
+    val stateMessage: MutableLiveData<StateMessage> = MutableLiveData()
 
     override fun addAll(elements: Collection<StateMessage>): Boolean {
         for(element in elements){
@@ -19,7 +19,7 @@ class ErrorStack: ArrayList<StateMessage>() {
 
     override fun add(element: StateMessage): Boolean {
         if(this.size == 0){
-            setStateError(errorState = element)
+            setStateMessage(stateMessage = element)
         }
         if(this.contains(element)){ // prevent duplicate errors added to stack
             return false
@@ -31,10 +31,10 @@ class ErrorStack: ArrayList<StateMessage>() {
         try{
             val transaction = super.removeAt(index)
             if(this.size > 0){
-                setStateError(errorState = this[0])
+                setStateMessage(stateMessage = this[0])
             }
             else{
-                setStateError(null)
+                setStateMessage(null)
             }
             return transaction
         }catch (e: IndexOutOfBoundsException){
@@ -49,7 +49,7 @@ class ErrorStack: ArrayList<StateMessage>() {
         ) // this does nothing
     }
 
-    private fun setStateError(errorState: StateMessage?){
-        this.stateError.value = errorState
+    private fun setStateMessage(stateMessage: StateMessage?){
+        this.stateMessage.value = stateMessage
     }
 }

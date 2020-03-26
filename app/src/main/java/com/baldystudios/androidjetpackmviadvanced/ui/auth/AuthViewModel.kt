@@ -11,6 +11,7 @@ import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.RegistrationFields
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.INVALID_STATE_EVENT
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.INVALID_STATE_EVENT
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.cancel

@@ -1,8 +1,8 @@
 package com.baldystudios.androidjetpackmviadvanced.repository
 
 import com.baldystudios.androidjetpackmviadvanced.util.*
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.NETWORK_ERROR
-import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.UNKNOWN_ERROR
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.NETWORK_ERROR
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
