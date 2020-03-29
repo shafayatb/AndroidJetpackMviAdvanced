@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.Observer
@@ -14,7 +12,7 @@ import com.baldystudios.androidjetpackmviadvanced.BaseApplication
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.fragments.auth.AuthNavHostFragment
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseActivity
-import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.CheckPreviousAuthEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.MainActivity
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE
@@ -25,8 +23,7 @@ import javax.inject.Inject
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-class AuthActivity : BaseActivity()
-{
+class AuthActivity : BaseActivity() {
 
     @Inject
     lateinit var fragmentFactory: FragmentFactory
@@ -44,16 +41,17 @@ class AuthActivity : BaseActivity()
         setContentView(R.layout.activity_auth)
         subscribeObservers()
         onRestoreInstanceState()
+        viewModel.setupChannel()
     }
 
-    fun onRestoreInstanceState(){
+    fun onRestoreInstanceState() {
         val host = supportFragmentManager.findFragmentById(R.id.auth_fragment_container)
         host?.let {
             // do nothing
         } ?: createNavHost()
     }
 
-    private fun createNavHost(){
+    private fun createNavHost() {
         val navHost = AuthNavHostFragment.create(
             R.navigation.auth_nav_graph
         )
@@ -72,11 +70,11 @@ class AuthActivity : BaseActivity()
         checkPreviousAuthUser()
     }
 
-    private fun subscribeObservers(){
+    private fun subscribeObservers() {
 
-        viewModel.viewState.observe(this, Observer{ viewState ->
+        viewModel.viewState.observe(this, Observer { viewState ->
             Log.d(TAG, "AuthActivity, subscribeObservers: AuthViewState: ${viewState}")
-            viewState.authToken?.let{
+            viewState.authToken?.let {
                 sessionManager.login(it)
             }
         })
@@ -89,12 +87,12 @@ class AuthActivity : BaseActivity()
         viewModel.stateMessage.observe(this, Observer { stateMessage ->
 
             stateMessage?.let {
-                if(it.response.message.equals(RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE)){
+                if (it.response.message.equals(RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE)) {
                     onFinishCheckPreviousAuthUser()
                 }
                 onResponseReceived(
                     response = it.response,
-                    stateMessageCallback = object: StateMessageCallback {
+                    stateMessageCallback = object : StateMessageCallback {
                         override fun removeMessageFromStack() {
                             viewModel.clearStateMessage()
                         }
@@ -103,17 +101,17 @@ class AuthActivity : BaseActivity()
             }
         })
 
-        sessionManager.cachedToken.observe(this, Observer{ dataState ->
+        sessionManager.cachedToken.observe(this, Observer { dataState ->
             Log.d(TAG, "AuthActivity, subscribeObservers: AuthDataState: ${dataState}")
-            dataState.let{ authToken ->
-                if(authToken != null && authToken.account_pk != -1 && authToken.token != null){
+            dataState.let { authToken ->
+                if (authToken != null && authToken.account_pk != -1 && authToken.token != null) {
                     navMainActivity()
                 }
             }
         })
     }
 
-    fun navMainActivity(){
+    fun navMainActivity() {
         Log.d(TAG, "navMainActivity: called.")
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
@@ -121,11 +119,11 @@ class AuthActivity : BaseActivity()
         (application as BaseApplication).releaseAuthComponent()
     }
 
-    private fun checkPreviousAuthUser(){
-        viewModel.setStateEvent(AuthStateEvent.CheckPreviousAuthEvent())
+    private fun checkPreviousAuthUser() {
+        viewModel.setStateEvent(CheckPreviousAuthEvent())
     }
 
-    private fun onFinishCheckPreviousAuthUser(){
+    private fun onFinishCheckPreviousAuthUser() {
         fragment_container.visibility = View.VISIBLE
     }
 
@@ -134,11 +132,10 @@ class AuthActivity : BaseActivity()
             .inject(this)
     }
 
-    override fun displayProgressBar(isLoading: Boolean){
-        if(isLoading){
+    override fun displayProgressBar(isLoading: Boolean) {
+        if (isLoading) {
             progress_bar.visibility = View.VISIBLE
-        }
-        else{
+        } else {
             progress_bar.visibility = View.GONE
         }
     }

@@ -1,5 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
@@ -29,11 +30,13 @@ constructor(
 
     override fun handleNewData(stateEvent: StateEvent?, data: AccountViewState) {
 
+        Log.d(TAG, "handleNewData: ${data}")
+
         data.accountProperties?.let { accountProperties ->
             setAccountPropertiesData(accountProperties)
         }
 
-        _activeJobCounter.removeJobFromCounter(stateEvent)
+        _activeStateEventTracker.removeStateEvent(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {

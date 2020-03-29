@@ -1,11 +1,13 @@
 package com.baldystudios.androidjetpackmviadvanced.ui
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
 import com.afollestad.materialdialogs.MaterialDialog
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
+private val TAG: String = "AppDebug"
 
 fun Activity.displayToast(
     @StringRes message:Int,
@@ -48,6 +50,7 @@ fun Activity.displayErrorDialog(
             message(text = message)
             positiveButton(R.string.text_ok)
             setOnDismissListener {
+                Log.d(TAG, "dismissing dialog: ")
                 stateMessageCallback.removeMessageFromStack()
             }
         }

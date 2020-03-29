@@ -25,17 +25,14 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_DATE_UPDATED
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_DESC
-import com.baldystudios.androidjetpackmviadvanced.util.DataState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
-import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
 import com.bumptech.glide.RequestManager
@@ -46,7 +43,6 @@ import javax.inject.Inject
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-@MainScope
 class BlogFragment
 @Inject
 constructor(
@@ -65,9 +61,6 @@ constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        cancelActiveJobs()
-
         // Restore state after process death
         savedInstanceState?.let { inState ->
             (inState[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { viewState ->
@@ -76,8 +69,11 @@ constructor(
         }
     }
 
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
     override fun onSaveInstanceState(outState: Bundle) {
-
         val viewState = viewModel.viewState.value
 
         //clear the list. Don't want to save a large list to bundle.
@@ -87,22 +83,18 @@ constructor(
             BLOG_VIEW_STATE_BUNDLE_KEY,
             viewState
         )
-
         super.onSaveInstanceState(outState)
     }
 
-    override fun cancelActiveJobs() {
-        viewModel.cancelActiveJobs()
+    override fun setupChannel() {
+        viewModel.setupChannel()
     }
-
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         setHasOptionsMenu(true)
         swipe_refresh.setOnRefreshListener(this)
-
         initRecyclerView()
         subscribeObservers()
     }
@@ -126,7 +118,6 @@ constructor(
     private fun subscribeObservers() {
 
         viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
-            Log.d(TAG, "BlogFragment, ViewState: ${viewState}")
             if (viewState != null) {
                 recyclerAdapter.apply {
                     viewState.blogFields.blogList?.let {
@@ -135,9 +126,10 @@ constructor(
                             list = it
                         )
                     }
+
                     submitList(
                         list = viewState.blogFields.blogList,
-                        isQueryExhausted = viewState.blogFields.isQueryExhausted?: true
+                        isQueryExhausted = viewState.blogFields.isQueryExhausted ?: true
                     )
                 }
 
@@ -153,7 +145,7 @@ constructor(
             stateMessage?.let {
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
-                    stateMessageCallback = object: StateMessageCallback {
+                    stateMessageCallback = object : StateMessageCallback {
                         override fun removeMessageFromStack() {
                             viewModel.clearStateMessage()
                         }
@@ -223,8 +215,7 @@ constructor(
 
             recyclerAdapter = BlogListAdapter(
                 this@BlogFragment,
-               requestManager
-
+                requestManager
             )
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
 

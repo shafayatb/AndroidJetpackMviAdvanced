@@ -88,7 +88,7 @@ constructor(
             }
         }
 
-        _activeJobCounter.removeJobFromCounter(stateEvent)
+        _activeStateEventTracker.removeStateEvent(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {

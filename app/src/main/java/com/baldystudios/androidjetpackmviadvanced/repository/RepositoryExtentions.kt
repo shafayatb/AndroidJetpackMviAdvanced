@@ -16,6 +16,9 @@ import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 
+/**
+ * Reference: https://medium.com/@douglas.iacovelli/how-to-handle-errors-with-retrofit-and-coroutines-33e7492a912
+ */
 private val TAG: String = "AppDebug"
 
 suspend fun <T> safeApiCall(
@@ -25,7 +28,7 @@ suspend fun <T> safeApiCall(
     return withContext(dispatcher) {
         try {
             // throws TimeoutCancellationException
-            withTimeout(NETWORK_TIMEOUT) {
+            withTimeout(NETWORK_TIMEOUT){
                 Success(apiCall.invoke())
             }
         } catch (throwable: Throwable) {
@@ -63,7 +66,7 @@ suspend fun <T> safeCacheCall(
     return withContext(dispatcher) {
         try {
             // throws TimeoutCancellationException
-            withTimeout(CACHE_TIMEOUT) {
+            withTimeout(CACHE_TIMEOUT){
                 CacheResult.Success(cacheCall.invoke())
             }
         } catch (throwable: Throwable) {
@@ -80,21 +83,20 @@ suspend fun <T> safeCacheCall(
 }
 
 
-fun <ViewState> emitError(
+fun <ViewState> buildError(
     message: String,
     uiComponentType: UIComponentType,
     stateEvent: StateEvent?
-): Flow<DataState<ViewState>> = flow {
-    emit(
-        DataState.error(
-            response = Response(
-                message = "${stateEvent?.errorInfo()}\n\nReason: ${message}",
-                uiComponentType = uiComponentType,
-                messageType = MessageType.Error()
-            ),
-            stateEvent = stateEvent
-        )
+): DataState<ViewState>{
+    return DataState.error(
+        response = Response(
+            message = "${stateEvent?.errorInfo()}\n\nReason: ${message}",
+            uiComponentType = uiComponentType,
+            messageType = MessageType.Error()
+        ),
+        stateEvent = stateEvent
     )
+
 }
 
 private fun convertErrorBody(throwable: HttpException): String? {

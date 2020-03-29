@@ -20,21 +20,18 @@ import javax.inject.Inject
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-@MainScope
 class UpdateAccountFragment
 @Inject
 constructor(
     private val viewModelFactory: ViewModelProvider.Factory
-) : BaseAccountFragment(R.layout.fragment_update_account) {
+): BaseAccountFragment(R.layout.fragment_update_account) {
 
-    val viewModel: AccountViewModel by viewModels {
+    val viewModel: AccountViewModel by viewModels{
         viewModelFactory
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        cancelActiveJobs()
-
         // Restore state after process death
         savedInstanceState?.let { inState ->
             (inState[ACCOUNT_VIEW_STATE_BUNDLE_KEY] as AccountViewState?)?.let { viewState ->
@@ -43,48 +40,23 @@ constructor(
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(
-            ACCOUNT_VIEW_STATE_BUNDLE_KEY,
-            viewModel.viewState.value
-        )
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun cancelActiveJobs() {
-        viewModel.cancelActiveJobs()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
         subscribeObservers()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.update_menu, menu)
+    override fun setupChannel() {
+        Log.d(TAG, "setupChannel ")
+        viewModel.setupChannel()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    private fun subscribeObservers(){
 
-        when (item.itemId) {
-            R.id.save -> {
-                saveChanges()
-                return true
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun subscribeObservers() {
-
-        viewModel.viewState.observe(viewLifecycleOwner, Observer { accountViewState ->
-            accountViewState?.let { viewState ->
-                viewState.accountProperties?.let {
-                    Log.d(TAG, "UpdateAccountFragment, ViewState: $it")
+        viewModel.viewState.observe(viewLifecycleOwner, Observer{ viewState ->
+            if(viewState != null){
+                viewState.accountProperties?.let{
+                    Log.d(TAG, "UpdateAccountFragment, ViewState: ${it}")
                     setAccountDataFields(it)
                 }
             }
@@ -96,6 +68,8 @@ constructor(
 
         viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
 
+            Log.d(TAG, "stack size: ${viewModel.getMessageStackSize()}")
+            Log.d(TAG, "state message: ${stateMessage}")
             stateMessage?.let {
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
@@ -109,17 +83,16 @@ constructor(
         })
     }
 
-    private fun setAccountDataFields(accountProperties: AccountProperties) {
-        input_email?.let {
+    private fun setAccountDataFields(accountProperties: AccountProperties){
+        if(input_email.text.isNullOrBlank()){
             input_email.setText(accountProperties.email)
         }
-
-        input_username?.let {
+        if(input_username.text.isNullOrBlank()){
             input_username.setText(accountProperties.username)
         }
     }
 
-    private fun saveChanges() {
+    private fun saveChanges(){
         viewModel.setStateEvent(
             AccountStateEvent.UpdateAccountPropertiesEvent(
                 input_email.text.toString(),
@@ -128,4 +101,19 @@ constructor(
         )
         uiCommunicationListener.hideSoftKeyboard()
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.update_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.save -> {
+                saveChanges()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 }

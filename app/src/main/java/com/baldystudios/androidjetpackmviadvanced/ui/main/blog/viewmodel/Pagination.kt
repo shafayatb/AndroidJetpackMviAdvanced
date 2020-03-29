@@ -57,9 +57,6 @@ fun BlogViewModel.nextPage(){
 @FlowPreview
 @UseExperimental(ExperimentalCoroutinesApi::class)
 fun BlogViewModel.handleIncomingBlogListData(viewState: BlogViewState){
-    Log.d(TAG, "BlogViewModel, DataState: ${viewState}")
-    Log.d(TAG, "BlogViewModel, DataState: isQueryExhausted?: " +
-            "${viewState.blogFields.isQueryExhausted}")
     viewState.blogFields.let { blogFields ->
         blogFields.blogList?.let { setBlogListData(it) }
         blogFields.isQueryExhausted?.let {  setQueryExhausted(it) }

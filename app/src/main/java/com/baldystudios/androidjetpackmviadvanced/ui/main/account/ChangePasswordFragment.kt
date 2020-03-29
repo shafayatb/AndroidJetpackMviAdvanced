@@ -36,7 +36,6 @@ constructor(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        cancelActiveJobs()
 
         // Restore state after process death
         savedInstanceState?.let { inState ->
@@ -54,8 +53,8 @@ constructor(
         super.onSaveInstanceState(outState)
     }
 
-    override fun cancelActiveJobs() {
-        viewModel.cancelActiveJobs()
+    override fun setupChannel() {
+        viewModel.setupChannel()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

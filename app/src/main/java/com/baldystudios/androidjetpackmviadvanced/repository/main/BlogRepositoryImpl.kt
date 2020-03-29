@@ -11,6 +11,7 @@ import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogPostDao
 import com.baldystudios.androidjetpackmviadvanced.persistence.returnOrderedBlogQuery
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
+import com.baldystudios.androidjetpackmviadvanced.repository.buildError
 import com.baldystudios.androidjetpackmviadvanced.repository.safeApiCall
 import com.baldystudios.androidjetpackmviadvanced.repository.safeCacheCall
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
@@ -51,7 +52,6 @@ constructor(
         page: Int,
         stateEvent: StateEvent
     ): Flow<DataState<BlogViewState>> {
-
         return object: NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
             dispatcher = IO,
             stateEvent = stateEvent,
@@ -149,7 +149,6 @@ constructor(
         slug: String,
         stateEvent: StateEvent
     ) = flow {
-
         val apiResult = safeApiCall(IO){
             openApiMainService.isAuthorOfBlogPost(
                 "Token ${authToken.token!!}",
@@ -187,13 +186,10 @@ constructor(
                         }
 
                         else -> {
-                            DataState.error(
-                                response = Response(
-                                    message = ERROR_UNKNOWN,
-                                    uiComponentType = UIComponentType.None(),
-                                    messageType = MessageType.Error()
-                                ),
-                                stateEvent = stateEvent
+                            buildError(
+                                ERROR_UNKNOWN,
+                                UIComponentType.None(),
+                                stateEvent
                             )
                         }
                     }
@@ -232,13 +228,10 @@ constructor(
                         )
                     }
                     else{
-                        return DataState.error(
-                            response = Response(
-                                message = ERROR_UNKNOWN,
-                                uiComponentType = UIComponentType.Dialog(),
-                                messageType = MessageType.Error()
-                            ),
-                            stateEvent = stateEvent
+                        return buildError(
+                            ERROR_UNKNOWN,
+                            UIComponentType.Dialog(),
+                            stateEvent
                         )
                     }
                 }

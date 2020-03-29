@@ -6,6 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.baldystudios.androidjetpackmviadvanced.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.cancel
@@ -21,26 +23,32 @@ abstract class BaseViewModel<ViewState> : ViewModel()
 {
     val TAG: String = "AppDebug"
 
-    protected val dataChannel = ConflatedBroadcastChannel<DataState<ViewState>>()
+    protected var dataChannel: ConflatedBroadcastChannel<DataState<ViewState>>? = null
 
     protected val _viewState: MutableLiveData<ViewState> = MutableLiveData()
-    protected val _activeJobCounter: ActiveJobCounter = ActiveJobCounter()
-    val messageStack = MessageStack()
+    protected val _activeStateEventTracker: ActiveStateEventTracker = ActiveStateEventTracker()
+    private val messageStack = MessageStack()
 
     val viewState: LiveData<ViewState>
         get() = _viewState
 
-    val numActiveJobs = _activeJobCounter.numActiveJobs
+    val numActiveJobs: LiveData<Int> = _activeStateEventTracker.numActiveJobs
 
-    val stateMessage: LiveData<StateMessage>
-            = messageStack.stateMessage
+    val stateMessage: LiveData<StateMessage?>
+        get() = messageStack.stateMessage
 
-    init {
-        setupChannel()
+    fun getMessageStackSize(): Int{
+        return messageStack.size
     }
 
-    private fun setupChannel(){
-        dataChannel
+    fun setupChannel(){
+        cancelActiveJobs()
+        _activeStateEventTracker.setupNewChannelScope(CoroutineScope(Main))
+        if(dataChannel != null){
+            dataChannel = null
+        }
+        dataChannel = ConflatedBroadcastChannel()
+        (dataChannel as ConflatedBroadcastChannel)
             .asFlow()
             .onEach{ dataState ->
                 dataState.data?.let { data ->
@@ -50,7 +58,7 @@ abstract class BaseViewModel<ViewState> : ViewModel()
                     handleNewStateMessage(dataState.stateEvent, stateMessage)
                 }
             }
-            .launchIn(viewModelScope)
+            .launchIn(_activeStateEventTracker.getChannelScope())
     }
 
     abstract fun handleNewData(stateEvent: StateEvent?, data: ViewState)
@@ -59,7 +67,7 @@ abstract class BaseViewModel<ViewState> : ViewModel()
 
     fun handleNewStateMessage(stateEvent: StateEvent?, stateMessage: StateMessage){
         appendStateMessage(stateMessage)
-        _activeJobCounter.removeJobFromCounter(stateEvent)
+        _activeStateEventTracker.removeStateEvent(stateEvent)
     }
 
     fun launchJob(
@@ -67,32 +75,35 @@ abstract class BaseViewModel<ViewState> : ViewModel()
         jobFunction: Flow<DataState<ViewState>>
     ){
         if(!isJobAlreadyActive(stateEvent)){
-            _activeJobCounter.addJobToCounter(stateEvent)
+            Log.d(TAG, "launching job: ")
+            _activeStateEventTracker.addStateEvent(stateEvent)
             jobFunction
                 .onEach { dataState ->
                     offerToDataChannel(dataState)
                 }
-                .launchIn(viewModelScope)
+                .launchIn(_activeStateEventTracker.getChannelScope())
         }
     }
 
     fun areAnyJobsActive(): Boolean{
-        return _activeJobCounter.numActiveJobs.value?.let {
+        return _activeStateEventTracker.numActiveJobs.value?.let {
             it > 0
         }?: false
     }
 
     fun getNumActiveJobs(): Int {
-        return _activeJobCounter.numActiveJobs.value ?: 0
+        return _activeStateEventTracker.numActiveJobs.value ?: 0
     }
 
     fun isJobAlreadyActive(stateEvent: StateEvent): Boolean {
-        return _activeJobCounter.isJobActive(stateEvent)
+        return _activeStateEventTracker.isStateEventActive(stateEvent)
     }
 
     private fun offerToDataChannel(dataState: DataState<ViewState>){
-        if(!dataChannel.isClosedForSend){
-            dataChannel.offer(dataState)
+        dataChannel?.let {
+            if(!it.isClosedForSend){
+                it.offer(dataState)
+            }
         }
     }
 
@@ -115,11 +126,10 @@ abstract class BaseViewModel<ViewState> : ViewModel()
         messageStack.removeAt(index)
     }
 
-    fun cancelActiveJobs(){
-        Log.d(TAG, "cancel active jobs: ")
+    open fun cancelActiveJobs(){
         if(areAnyJobsActive()){
-            _activeJobCounter.clearActiveJobCounter()
-            viewModelScope.cancel()
+            Log.d(TAG, "cancel active jobs: ${getNumActiveJobs()}")
+            _activeStateEventTracker.cancelJobs()
         }
     }
 

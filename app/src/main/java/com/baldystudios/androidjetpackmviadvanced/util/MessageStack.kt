@@ -1,5 +1,7 @@
 package com.baldystudios.androidjetpackmviadvanced.util
 
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.android.parcel.IgnoredOnParcel
 
@@ -7,8 +9,14 @@ const val MESSAGE_STACK_BUNDLE_KEY = "com.baldystudios.androidjetpackmviadvanced
 
 class MessageStack: ArrayList<StateMessage>() {
 
+    private val TAG: String = "AppDebug"
+
     @IgnoredOnParcel
-    val stateMessage: MutableLiveData<StateMessage> = MutableLiveData()
+    private val _stateMessage: MutableLiveData<StateMessage?> = MutableLiveData()
+
+    @IgnoredOnParcel
+    val stateMessage: LiveData<StateMessage?>
+        get() = _stateMessage
 
     override fun addAll(elements: Collection<StateMessage>): Boolean {
         for(element in elements){
@@ -18,13 +26,14 @@ class MessageStack: ArrayList<StateMessage>() {
     }
 
     override fun add(element: StateMessage): Boolean {
-        if(this.size == 0){
-            setStateMessage(stateMessage = element)
-        }
         if(this.contains(element)){ // prevent duplicate errors added to stack
             return false
         }
-        return super.add(element)
+        val transaction = super.add(element)
+        if(this.size == 1){
+            setStateMessage(stateMessage = element)
+        }
+        return transaction
     }
 
     override fun removeAt(index: Int): StateMessage {
@@ -34,6 +43,7 @@ class MessageStack: ArrayList<StateMessage>() {
                 setStateMessage(stateMessage = this[0])
             }
             else{
+                Log.d(TAG, "stack is empty: ")
                 setStateMessage(null)
             }
             return transaction
@@ -50,6 +60,6 @@ class MessageStack: ArrayList<StateMessage>() {
     }
 
     private fun setStateMessage(stateMessage: StateMessage?){
-        this.stateMessage.value = stateMessage
+        _stateMessage.value = stateMessage
     }
 }

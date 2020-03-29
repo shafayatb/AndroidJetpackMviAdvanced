@@ -10,7 +10,6 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.AppDatabase
 import com.baldystudios.androidjetpackmviadvanced.persistence.AppDatabase.Companion.DATABASE_NAME
 import com.baldystudios.androidjetpackmviadvanced.persistence.AuthTokenDao
 import com.baldystudios.androidjetpackmviadvanced.util.Constants
-import com.baldystudios.androidjetpackmviadvanced.util.LiveDataCallAdapterFactory
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
