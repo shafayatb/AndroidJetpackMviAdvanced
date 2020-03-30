@@ -4,30 +4,29 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.baldystudios.androidjetpackmviadvanced.util.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
+import com.baldystudios.androidjetpackmviadvanced.util.DataChannelManager
+import com.baldystudios.androidjetpackmviadvanced.util.DataState
+import com.baldystudios.androidjetpackmviadvanced.util.StateEvent
+import com.baldystudios.androidjetpackmviadvanced.util.StateMessage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-abstract class BaseViewModel<ViewState> : ViewModel()
-{
+abstract class BaseViewModel<ViewState> : ViewModel() {
     val TAG: String = "AppDebug"
 
-    protected var dataChannel: ConflatedBroadcastChannel<DataState<ViewState>>? = null
+    private val _viewState: MutableLiveData<ViewState> = MutableLiveData()
 
-    protected val _viewState: MutableLiveData<ViewState> = MutableLiveData()
-    protected val _activeStateEventTracker: ActiveStateEventTracker = ActiveStateEventTracker()
-    private val messageStack = MessageStack()
+    private val _activeStateEventTracker: DataChannelManager<ViewState> =
+        object : DataChannelManager<ViewState>() {
+
+            override fun handleNewData(data: ViewState) {
+                this@BaseViewModel.handleNewData(data)
+            }
+
+        }
 
     val viewState: LiveData<ViewState>
         get() = _viewState
@@ -35,100 +34,57 @@ abstract class BaseViewModel<ViewState> : ViewModel()
     val numActiveJobs: LiveData<Int> = _activeStateEventTracker.numActiveJobs
 
     val stateMessage: LiveData<StateMessage?>
-        get() = messageStack.stateMessage
+        get() = _activeStateEventTracker.messageStack.stateMessage
 
-    fun getMessageStackSize(): Int{
-        return messageStack.size
+    // FOR DEBUGGING
+    fun getMessageStackSize(): Int {
+        return _activeStateEventTracker.messageStack.size
     }
 
-    fun setupChannel(){
-        cancelActiveJobs()
-        _activeStateEventTracker.setupNewChannelScope(CoroutineScope(Main))
-        if(dataChannel != null){
-            dataChannel = null
-        }
-        dataChannel = ConflatedBroadcastChannel()
-        (dataChannel as ConflatedBroadcastChannel)
-            .asFlow()
-            .onEach{ dataState ->
-                dataState.data?.let { data ->
-                    handleNewData(dataState.stateEvent, data)
-                }
-                dataState.stateMessage?.let { stateMessage ->
-                    handleNewStateMessage(dataState.stateEvent, stateMessage)
-                }
-            }
-            .launchIn(_activeStateEventTracker.getChannelScope())
+    fun setupChannel() {
+        _activeStateEventTracker.setupChannel()
     }
 
-    abstract fun handleNewData(stateEvent: StateEvent?, data: ViewState)
+    abstract fun handleNewData(data: ViewState)
 
     abstract fun setStateEvent(stateEvent: StateEvent)
-
-    fun handleNewStateMessage(stateEvent: StateEvent?, stateMessage: StateMessage){
-        appendStateMessage(stateMessage)
-        _activeStateEventTracker.removeStateEvent(stateEvent)
-    }
 
     fun launchJob(
         stateEvent: StateEvent,
         jobFunction: Flow<DataState<ViewState>>
-    ){
-        if(!isJobAlreadyActive(stateEvent)){
-            Log.d(TAG, "launching job: ")
-            _activeStateEventTracker.addStateEvent(stateEvent)
-            jobFunction
-                .onEach { dataState ->
-                    offerToDataChannel(dataState)
-                }
-                .launchIn(_activeStateEventTracker.getChannelScope())
-        }
+    ) {
+        _activeStateEventTracker.launchJob(stateEvent, jobFunction)
     }
 
-    fun areAnyJobsActive(): Boolean{
+    fun areAnyJobsActive(): Boolean {
         return _activeStateEventTracker.numActiveJobs.value?.let {
             it > 0
-        }?: false
-    }
-
-    fun getNumActiveJobs(): Int {
-        return _activeStateEventTracker.numActiveJobs.value ?: 0
+        } ?: false
     }
 
     fun isJobAlreadyActive(stateEvent: StateEvent): Boolean {
-        return _activeStateEventTracker.isStateEventActive(stateEvent)
+        return _activeStateEventTracker.isJobAlreadyActive(stateEvent)
     }
 
-    private fun offerToDataChannel(dataState: DataState<ViewState>){
-        dataChannel?.let {
-            if(!it.isClosedForSend){
-                it.offer(dataState)
-            }
-        }
-    }
-
-    fun getCurrentViewStateOrNew(): ViewState{
-        val value = viewState.value?.let{
+    fun getCurrentViewStateOrNew(): ViewState {
+        val value = viewState.value?.let {
             it
-        }?: initNewViewState()
+        } ?: initNewViewState()
         return value
     }
 
-    fun setViewState(viewState: ViewState){
+    fun setViewState(viewState: ViewState) {
         _viewState.value = viewState
     }
 
-    private fun appendStateMessage(stateMessage: StateMessage) {
-        messageStack.add(stateMessage)
+    fun clearStateMessage(index: Int = 0) {
+        _activeStateEventTracker.clearStateMessage(index)
     }
 
-    fun clearStateMessage(index: Int = 0){
-        messageStack.removeAt(index)
-    }
-
-    open fun cancelActiveJobs(){
-        if(areAnyJobsActive()){
-            Log.d(TAG, "cancel active jobs: ${getNumActiveJobs()}")
+    open fun cancelActiveJobs() {
+        if (areAnyJobsActive()) {
+//            Log.d(TAG, "cancel active jobs: ${getNumActiveJobs()}")
+            Log.d(TAG, "cancel active jobs: ${_activeStateEventTracker.numActiveJobs.value ?: 0}")
             _activeStateEventTracker.cancelJobs()
         }
     }

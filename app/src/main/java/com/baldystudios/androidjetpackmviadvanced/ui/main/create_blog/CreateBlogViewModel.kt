@@ -30,7 +30,7 @@ constructor(
     val sessionManager: SessionManager
 ) : BaseViewModel<CreateBlogViewState>() {
 
-    override fun handleNewData(stateEvent: StateEvent?, data: CreateBlogViewState) {
+    override fun handleNewData(data: CreateBlogViewState) {
 
         setNewBlogFields(
             data.blogFields.newBlogTitle,
@@ -92,7 +92,7 @@ constructor(
         body?.let { newBlogFields.newBlogBody = it }
         uri?.let { newBlogFields.newImageUri = it }
         update.blogFields = newBlogFields
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun clearNewBlogFields() {

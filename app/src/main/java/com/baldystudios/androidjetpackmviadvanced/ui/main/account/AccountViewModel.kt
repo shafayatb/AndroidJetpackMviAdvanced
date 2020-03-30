@@ -1,7 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.repository.main.AccountRepositoryImpl
@@ -13,7 +12,6 @@ import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.INVALID_STATE_EVENT
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -28,15 +26,13 @@ constructor(
     val accountRepository: AccountRepositoryImpl
 ) : BaseViewModel<AccountViewState>() {
 
-    override fun handleNewData(stateEvent: StateEvent?, data: AccountViewState) {
+    override fun handleNewData(data: AccountViewState) {
 
         Log.d(TAG, "handleNewData: ${data}")
 
         data.accountProperties?.let { accountProperties ->
             setAccountPropertiesData(accountProperties)
         }
-
-        _activeStateEventTracker.removeStateEvent(stateEvent)
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {

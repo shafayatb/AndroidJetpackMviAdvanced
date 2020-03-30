@@ -25,6 +25,7 @@ import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -155,6 +156,7 @@ constructor(
                 slug
             )
         }
+        delay(2000)
         emit(
             object: ApiResponseHandler<BlogViewState, GenericResponse>(
                 response = apiResult,
@@ -166,6 +168,7 @@ constructor(
                             isAuthorOfBlogPost = false
                         )
                     )
+                    Log.d(TAG, "handleSuccess")
                     return when {
 
                         resultObj.response.equals(RESPONSE_NO_PERMISSION_TO_EDIT) -> {
