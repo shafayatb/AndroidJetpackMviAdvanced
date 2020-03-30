@@ -3,19 +3,20 @@ package com.baldystudios.androidjetpackmviadvanced.util
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.NETWORK_ERROR
 
 
-abstract class ApiResponseHandler <ViewState, Data>(
+abstract class ApiResponseHandler<ViewState, Data>(
     private val response: ApiResult<Data?>,
     private val stateEvent: StateEvent
-){
+) {
+    private val TAG: String = "AppDebug"
 
-    suspend fun getResult(): DataState<ViewState>{
+    suspend fun getResult(): DataState<ViewState> {
 
-        return when(response){
+        return when (response) {
 
             is ApiResult.GenericError -> {
                 DataState.error(
                     response = Response(
-                        message = "${stateEvent.errorInfo()}\n\nReason: ${response.errorMessage}",
+                        message = "${stateEvent.errorInfo()}\n\nReason: ${response.errorMessage.toString()}",
                         uiComponentType = UIComponentType.Dialog(),
                         messageType = MessageType.Error()
                     ),
@@ -35,7 +36,7 @@ abstract class ApiResponseHandler <ViewState, Data>(
             }
 
             is ApiResult.Success -> {
-                if(response.value == null){
+                if (response.value == null) {
                     DataState.error(
                         response = Response(
                             message = "${stateEvent.errorInfo()}\n\nReason: Data is NULL.",
@@ -44,8 +45,7 @@ abstract class ApiResponseHandler <ViewState, Data>(
                         ),
                         stateEvent = stateEvent
                     )
-                }
-                else{
+                } else {
                     handleSuccess(resultObj = response.value)
                 }
             }

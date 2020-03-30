@@ -32,6 +32,7 @@ suspend fun <T> safeApiCall(
                 Success(apiCall.invoke())
             }
         } catch (throwable: Throwable) {
+            throwable.printStackTrace()
             when (throwable) {
                 is TimeoutCancellationException -> {
                     val code = 408 // timeout error code

@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.baldystudios.androidjetpackmviadvanced.BaseApplication
+import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.PERMISSIONS_REQUEST_READ_STORAGE
 import com.baldystudios.androidjetpackmviadvanced.util.MessageType
@@ -25,7 +27,7 @@ abstract class BaseActivity: AppCompatActivity(),
 
     val TAG: String = "AppDebug"
 
-    private val dialogs: HashMap<String, MaterialDialog> = HashMap()
+    private var dialogInView: MaterialDialog? = null
 
     @Inject
     lateinit var sessionManager: SessionManager
@@ -88,43 +90,33 @@ abstract class BaseActivity: AppCompatActivity(),
         Log.d(TAG, "displayDialog: ")
         response.message?.let { message ->
 
-            if(!dialogs.containsKey(message)){
-                when (response.messageType) {
+            dialogInView = when (response.messageType) {
 
-                    is MessageType.Error -> {
-                        dialogs.put(
-                            response.message,
-                            displayErrorDialog(
-                                message = message,
-                                stateMessageCallback = stateMessageCallback
-                            )
-                        )
-                    }
+                is MessageType.Error -> {
+                    displayErrorDialog(
+                        message = message,
+                        stateMessageCallback = stateMessageCallback
+                    )
+                }
 
-                    is MessageType.Success -> {
-                        dialogs.put(
-                            response.message,
-                            displaySuccessDialog(
-                                message = message,
-                                stateMessageCallback = stateMessageCallback
-                            )
-                        )
-                    }
+                is MessageType.Success -> {
+                    displaySuccessDialog(
+                        message = message,
+                        stateMessageCallback = stateMessageCallback
+                    )
+                }
 
-                    is MessageType.Info -> {
-                        dialogs.put(
-                            response.message,
-                            displayInfoDialog(
-                                message = message,
-                                stateMessageCallback = stateMessageCallback
-                            )
-                        )
-                    }
+                is MessageType.Info -> {
+                    displayInfoDialog(
+                        message = message,
+                        stateMessageCallback = stateMessageCallback
+                    )
+                }
 
-                    else -> {
-                        // do nothing
-                        stateMessageCallback.removeMessageFromStack()
-                    }
+                else -> {
+                    // do nothing
+                    stateMessageCallback.removeMessageFromStack()
+                    null
                 }
             }
         }?: stateMessageCallback.removeMessageFromStack()
@@ -166,15 +158,85 @@ abstract class BaseActivity: AppCompatActivity(),
         }
     }
 
-    private fun dismissDialogs(){
-        for(dialog in dialogs){
-            dialog.value.dismiss()
-            dialogs.remove(dialog.key)
+    override fun onPause() {
+        super.onPause()
+        if(dialogInView != null){
+            (dialogInView as MaterialDialog).dismiss()
+            dialogInView = null
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        dismissDialogs()
+    private fun displaySuccessDialog(
+        message: String?,
+        stateMessageCallback: StateMessageCallback
+    ): MaterialDialog {
+        return MaterialDialog(this)
+            .show{
+                title(R.string.text_success)
+                message(text = message)
+                positiveButton(R.string.text_ok){
+                    stateMessageCallback.removeMessageFromStack()
+                }
+                onDismiss {
+                    dialogInView = null
+                }
+            }
+    }
+
+    private fun displayErrorDialog(
+        message: String?,
+        stateMessageCallback: StateMessageCallback
+    ): MaterialDialog {
+        return MaterialDialog(this)
+            .show{
+                title(R.string.text_error)
+                message(text = message)
+                positiveButton(R.string.text_ok){
+                    stateMessageCallback.removeMessageFromStack()
+                }
+                onDismiss {
+                    dialogInView = null
+                }
+            }
+    }
+
+    private fun displayInfoDialog(
+        message: String?,
+        stateMessageCallback: StateMessageCallback
+    ): MaterialDialog {
+        return MaterialDialog(this)
+            .show{
+                title(R.string.text_info)
+                message(text = message)
+                positiveButton(R.string.text_ok){
+                    stateMessageCallback.removeMessageFromStack()
+                }
+                onDismiss {
+                    dialogInView = null
+                }
+            }
+    }
+
+    private fun areYouSureDialog(
+        message: String,
+        callback: AreYouSureCallback,
+        stateMessageCallback: StateMessageCallback
+    ): MaterialDialog {
+        return MaterialDialog(this)
+            .show{
+                title(R.string.are_you_sure)
+                message(text = message)
+                negativeButton(R.string.text_cancel){
+                    callback.cancel()
+                    stateMessageCallback.removeMessageFromStack()
+                }
+                positiveButton(R.string.text_yes){
+                    callback.proceed()
+                    stateMessageCallback.removeMessageFromStack()
+                }
+                onDismiss {
+                    dialogInView = null
+                }
+            }
     }
 }
