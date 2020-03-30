@@ -42,7 +42,7 @@ constructor(
         setBlogOrder(
             sharedPreferences.getString(
                 BLOG_ORDER,
-                BlogQueryUtils.BLOG_ORDER_ASC
+                BlogQueryUtils.BLOG_ORDER_DESC
             )
         )
     }
