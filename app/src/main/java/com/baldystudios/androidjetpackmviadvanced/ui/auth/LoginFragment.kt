@@ -1,18 +1,14 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.auth
 
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
-import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
-import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent
+import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.LoginAttemptEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import kotlinx.android.synthetic.main.fragment_login.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,20 +25,7 @@ class LoginFragment
 @Inject
 constructor(
     viewModelFactory: ViewModelProvider.Factory
-) : Fragment(R.layout.fragment_login) {
-
-    private val TAG: String = "AppDebug"
-
-    lateinit var uiCommunicationListener: UICommunicationListener
-
-    val viewModel: AuthViewModel by viewModels {
-        viewModelFactory
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.cancelActiveJobs()
-    }
+) : BaseAuthFragment(R.layout.fragment_login, viewModelFactory) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,30 +38,26 @@ constructor(
 
     }
 
-
     fun subscribeObservers() {
         viewModel.viewState.observe(viewLifecycleOwner, Observer {
-            it.loginFields?.let { loginFields ->
-                loginFields.login_email?.let { email -> input_email.setText(email) }
-                loginFields.login_password?.let { password -> input_password.setText(password) }
+            it.loginFields?.let {
+                it.login_email?.let { input_email.setText(it) }
+                it.login_password?.let { input_password.setText(it) }
             }
-
         })
     }
 
     fun login() {
-
+        saveLoginFields()
         viewModel.setStateEvent(
-            AuthStateEvent.LoginAttemptEvent(
+            LoginAttemptEvent(
                 input_email.text.toString(),
                 input_password.text.toString()
             )
         )
-
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    private fun saveLoginFields() {
         viewModel.setLoginFields(
             LoginFields(
                 input_email.text.toString(),
@@ -87,13 +66,9 @@ constructor(
         )
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try{
-            uiCommunicationListener = context as UICommunicationListener
-        }catch(e: ClassCastException){
-            Log.e(TAG, "$context must implement UICommunicationListener" )
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        saveLoginFields()
     }
 
 }

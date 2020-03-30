@@ -10,7 +10,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
@@ -41,17 +40,12 @@ import javax.inject.Inject
 class CreateBlogFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory,
+    viewModelFactory: ViewModelProvider.Factory,
     private val requestManager: RequestManager
-) : BaseCreateBlogFragment(R.layout.fragment_create_blog) {
-
-    val viewModel: CreateBlogViewModel by viewModels {
-        viewModelFactory
-    }
+) : BaseCreateBlogFragment(R.layout.fragment_create_blog, viewModelFactory) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Restore state after process death
         savedInstanceState?.let { inState ->
             (inState[CREATE_BLOG_VIEW_STATE_BUNDLE_KEY] as CreateBlogViewState?)?.let { viewState ->
@@ -70,10 +64,6 @@ constructor(
             viewModel.viewState.value
         )
         super.onSaveInstanceState(outState)
-    }
-
-    override fun setupChannel() {
-        viewModel.setupChannel()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

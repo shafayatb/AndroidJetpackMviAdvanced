@@ -156,7 +156,7 @@ constructor(
                 slug
             )
         }
-        delay(2000)
+
         emit(
             object: ApiResponseHandler<BlogViewState, GenericResponse>(
                 response = apiResult,
@@ -168,7 +168,7 @@ constructor(
                             isAuthorOfBlogPost = false
                         )
                     )
-                    Log.d(TAG, "handleSuccess")
+
                     return when {
 
                         resultObj.response.equals(RESPONSE_NO_PERMISSION_TO_EDIT) -> {

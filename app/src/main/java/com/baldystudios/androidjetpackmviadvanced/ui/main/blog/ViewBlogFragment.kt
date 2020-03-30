@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.net.toUri
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -31,13 +30,9 @@ import javax.inject.Inject
 class ViewBlogFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory,
+    viewModelFactory: ViewModelProvider.Factory,
     private val requestManager: RequestManager
-) : BaseBlogFragment(R.layout.fragment_view_blog) {
-
-    val viewModel: BlogViewModel by viewModels {
-        viewModelFactory
-    }
+) : BaseBlogFragment(R.layout.fragment_view_blog, viewModelFactory) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,10 +61,6 @@ constructor(
         super.onSaveInstanceState(outState)
     }
 
-    override fun setupChannel() {
-        viewModel.setupChannel()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
@@ -80,6 +71,7 @@ constructor(
         delete_button.setOnClickListener {
             confirmDeleteRequest()
         }
+
     }
 
     fun confirmDeleteRequest() {

@@ -85,29 +85,39 @@ abstract class BaseActivity: AppCompatActivity(),
         response: Response,
         stateMessageCallback: StateMessageCallback
     ){
+        Log.d(TAG, "displayDialog: ")
         response.message?.let { message ->
 
             if(!dialogs.containsKey(message)){
                 when (response.messageType) {
 
                     is MessageType.Error -> {
-                        displayErrorDialog(
-                            message = message,
-                            stateMessageCallback = stateMessageCallback
+                        dialogs.put(
+                            response.message,
+                            displayErrorDialog(
+                                message = message,
+                                stateMessageCallback = stateMessageCallback
+                            )
                         )
                     }
 
                     is MessageType.Success -> {
-                        displaySuccessDialog(
-                            message = message,
-                            stateMessageCallback = stateMessageCallback
+                        dialogs.put(
+                            response.message,
+                            displaySuccessDialog(
+                                message = message,
+                                stateMessageCallback = stateMessageCallback
+                            )
                         )
                     }
 
                     is MessageType.Info -> {
-                        displayInfoDialog(
-                            message = message,
-                            stateMessageCallback = stateMessageCallback
+                        dialogs.put(
+                            response.message,
+                            displayInfoDialog(
+                                message = message,
+                                stateMessageCallback = stateMessageCallback
+                            )
                         )
                     }
 
@@ -116,9 +126,6 @@ abstract class BaseActivity: AppCompatActivity(),
                         stateMessageCallback.removeMessageFromStack()
                     }
                 }
-            }
-            else{
-                stateMessageCallback.removeMessageFromStack()
             }
         }?: stateMessageCallback.removeMessageFromStack()
     }
@@ -157,5 +164,17 @@ abstract class BaseActivity: AppCompatActivity(),
             // Permission has already been granted
             return true
         }
+    }
+
+    private fun dismissDialogs(){
+        for(dialog in dialogs){
+            dialog.value.dismiss()
+            dialogs.remove(dialog.key)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        dismissDialogs()
     }
 }

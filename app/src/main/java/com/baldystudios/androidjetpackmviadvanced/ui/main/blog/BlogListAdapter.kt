@@ -13,8 +13,9 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.*
 
 class BlogListAdapter(
-    private val interaction: Interaction? = null,
-    private val requestManager: RequestManager
+    private val requestManager: RequestManager,
+    private val interaction: Interaction? = null
+
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -106,9 +107,9 @@ class BlogListAdapter(
         return differ.currentList[position].pk // -1
     }
 
-    fun submitList(list: List<BlogPost>?, isQueryExhausted: Boolean) {
+    fun submitList(blogList: List<BlogPost>?, isQueryExhausted: Boolean) {
 
-        val newList = list?.toMutableList()
+        val newList = blogList?.toMutableList()
         if (isQueryExhausted) {
             newList?.add(NO_MORE_RESULTS_BLOG_MARKAR)
         }

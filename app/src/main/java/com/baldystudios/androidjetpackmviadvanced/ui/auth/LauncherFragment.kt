@@ -4,7 +4,6 @@ package com.baldystudios.androidjetpackmviadvanced.ui.auth
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
@@ -24,16 +23,7 @@ class LauncherFragment
 @Inject
 constructor(
     viewModelFactory: ViewModelProvider.Factory
-) : Fragment(R.layout.fragment_launcher) {
-
-    val viewModel: AuthViewModel by viewModels {
-        viewModelFactory
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.cancelActiveJobs()
-    }
+) : BaseAuthFragment(R.layout.fragment_launcher, viewModelFactory) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,20 +40,19 @@ constructor(
             navForgotPassword()
         }
 
-        focusable_view.requestFocus()
-
+        focusable_view.requestFocus() // reset focus
     }
 
-    private fun navForgotPassword() {
-        findNavController().navigate(R.id.action_launcherFragment_to_forgotPasswordFragment)
-    }
-
-    private fun navLogin() {
+    fun navLogin() {
         findNavController().navigate(R.id.action_launcherFragment_to_loginFragment)
     }
 
-    private fun navRegistration() {
+    fun navRegistration() {
         findNavController().navigate(R.id.action_launcherFragment_to_registerFragment)
+    }
+
+    fun navForgotPassword() {
+        findNavController().navigate(R.id.action_launcherFragment_to_forgotPasswordFragment)
     }
 
 }

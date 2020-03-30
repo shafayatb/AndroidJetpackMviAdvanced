@@ -7,6 +7,8 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
@@ -19,10 +21,16 @@ import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 abstract class BaseCreateBlogFragment
 constructor(
     @LayoutRes
-    private val layoutRes: Int
-) : Fragment(layoutRes) {
+    private val layoutRes: Int,
+    private val viewModelFactory: ViewModelProvider.Factory
+): Fragment(layoutRes)
+{
 
     val TAG: String = "AppDebug"
+
+    val viewModel: CreateBlogViewModel by viewModels{
+        viewModelFactory
+    }
 
     lateinit var uiCommunicationListener: UICommunicationListener
 
@@ -33,7 +41,8 @@ constructor(
             .addOnDestinationChangedListener(onDestinationChangeListener)
     }
 
-    private val onDestinationChangeListener = object : NavController.OnDestinationChangedListener {
+    private val onDestinationChangeListener
+            = object: NavController.OnDestinationChangedListener {
         override fun onDestinationChanged(
             controller: NavController,
             destination: NavDestination,
@@ -43,9 +52,9 @@ constructor(
         }
     }
 
-    abstract fun setupChannel()
+    private fun setupChannel() = viewModel.setupChannel()
 
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
@@ -62,10 +71,10 @@ constructor(
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try {
+        try{
             uiCommunicationListener = context as UICommunicationListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement UICommunicationListener")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement UICommunicationListener" )
         }
 
     }

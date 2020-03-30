@@ -1,21 +1,14 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.ACCOUNT_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
-import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_PASSWORD_UPDATE_SUCCESS
 import kotlinx.android.synthetic.main.fragment_change_password.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -23,38 +16,20 @@ import javax.inject.Inject
 
 @FlowPreview
 @ExperimentalCoroutinesApi
-@MainScope
 class ChangePasswordFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory
-) : BaseAccountFragment(R.layout.fragment_change_password) {
-
-    val viewModel: AccountViewModel by viewModels {
-        viewModelFactory
-    }
+    viewModelFactory: ViewModelProvider.Factory
+) : BaseAccountFragment(R.layout.fragment_change_password, viewModelFactory) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Restore state after process death
         savedInstanceState?.let { inState ->
             (inState[ACCOUNT_VIEW_STATE_BUNDLE_KEY] as AccountViewState?)?.let { viewState ->
                 viewModel.setViewState(viewState)
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(
-            ACCOUNT_VIEW_STATE_BUNDLE_KEY,
-            viewModel.viewState.value
-        )
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun setupChannel() {
-        viewModel.setupChannel()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,7 +59,7 @@ constructor(
             stateMessage?.let {
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
-                    stateMessageCallback = object: StateMessageCallback {
+                    stateMessageCallback = object : StateMessageCallback {
                         override fun removeMessageFromStack() {
                             viewModel.clearStateMessage()
                         }
@@ -92,6 +67,5 @@ constructor(
                 )
             }
         })
-
     }
 }

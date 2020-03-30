@@ -46,15 +46,12 @@ import javax.inject.Inject
 class BlogFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory,
+    viewModelFactory: ViewModelProvider.Factory,
     private val requestManager: RequestManager
-) : BaseBlogFragment(R.layout.fragment_blog),
+): BaseBlogFragment(R.layout.fragment_blog, viewModelFactory),
     BlogListAdapter.Interaction,
-    SwipeRefreshLayout.OnRefreshListener {
-
-    val viewModel: BlogViewModel by viewModels {
-        viewModelFactory
-    }
+    SwipeRefreshLayout.OnRefreshListener
+{
 
     private lateinit var searchView: SearchView
     private lateinit var recyclerAdapter: BlogListAdapter
@@ -86,10 +83,6 @@ constructor(
         super.onSaveInstanceState(outState)
     }
 
-    override fun setupChannel() {
-        viewModel.setupChannel()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -109,16 +102,16 @@ constructor(
         saveLayoutManagerState()
     }
 
-    private fun saveLayoutManagerState() {
+    private fun saveLayoutManagerState(){
         blog_post_recyclerview.layoutManager?.onSaveInstanceState()?.let { lmState ->
             viewModel.setLayoutManagerState(lmState)
         }
     }
 
-    private fun subscribeObservers() {
+    private fun subscribeObservers(){
 
-        viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
-            if (viewState != null) {
+        viewModel.viewState.observe(viewLifecycleOwner, Observer{ viewState ->
+            if(viewState != null){
                 recyclerAdapter.apply {
                     viewState.blogFields.blogList?.let {
                         preloadGlideImages(
@@ -128,8 +121,8 @@ constructor(
                     }
 
                     submitList(
-                        list = viewState.blogFields.blogList,
-                        isQueryExhausted = viewState.blogFields.isQueryExhausted ?: true
+                        blogList = viewState.blogFields.blogList,
+                        isQueryExhausted = viewState.blogFields.isQueryExhausted?: true
                     )
                 }
 
@@ -145,7 +138,7 @@ constructor(
             stateMessage?.let {
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
-                    stateMessageCallback = object : StateMessageCallback {
+                    stateMessageCallback = object: StateMessageCallback {
                         override fun removeMessageFromStack() {
                             viewModel.clearStateMessage()
                         }
@@ -155,7 +148,7 @@ constructor(
         })
     }
 
-    private fun initSearchView(menu: Menu) {
+    private fun initSearchView(menu: Menu){
         activity?.apply {
             val searchManager: SearchManager = getSystemService(SEARCH_SERVICE) as SearchManager
             searchView = menu.findItem(R.id.action_search).actionView as SearchView
@@ -170,11 +163,10 @@ constructor(
         searchPlate.setOnEditorActionListener { v, actionId, event ->
 
             if (actionId == EditorInfo.IME_ACTION_UNSPECIFIED
-                || actionId == EditorInfo.IME_ACTION_SEARCH
-            ) {
+                || actionId == EditorInfo.IME_ACTION_SEARCH ) {
                 val searchQuery = v.text.toString()
                 Log.e(TAG, "SearchView: (keyboard or arrow) executing search...: ${searchQuery}")
-                viewModel.setQuery(searchQuery).let {
+                viewModel.setQuery(searchQuery).let{
                     onBlogSearchOrFilter()
                 }
             }
@@ -193,19 +185,19 @@ constructor(
         }
     }
 
-    private fun onBlogSearchOrFilter() {
+    private fun onBlogSearchOrFilter(){
         viewModel.loadFirstPage().let {
             resetUI()
         }
     }
 
-    private fun resetUI() {
+    private  fun resetUI(){
         blog_post_recyclerview.smoothScrollToPosition(0)
         uiCommunicationListener.hideSoftKeyboard()
         focusable_view.requestFocus()
     }
 
-    private fun initRecyclerView() {
+    private fun initRecyclerView(){
 
         blog_post_recyclerview.apply {
             layoutManager = LinearLayoutManager(this@BlogFragment.context)
@@ -214,10 +206,10 @@ constructor(
             addItemDecoration(topSpacingDecorator)
 
             recyclerAdapter = BlogListAdapter(
-                this@BlogFragment,
-                requestManager
+                requestManager,
+                this@BlogFragment
             )
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            addOnScrollListener(object: RecyclerView.OnScrollListener(){
 
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
@@ -241,7 +233,7 @@ constructor(
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        when (item.itemId) {
+        when(item.itemId){
             R.id.action_filter_settings -> {
                 showFilterDialog()
                 return true
@@ -272,7 +264,7 @@ constructor(
         swipe_refresh.isRefreshing = false
     }
 
-    fun showFilterDialog() {
+    fun showFilterDialog(){
 
         activity?.let {
             val dialog = MaterialDialog(it)

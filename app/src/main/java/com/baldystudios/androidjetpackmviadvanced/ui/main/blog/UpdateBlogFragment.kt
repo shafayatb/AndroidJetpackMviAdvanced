@@ -9,14 +9,16 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.getUpdatedBlogUri
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedBody
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedTitle
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedUri
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.GALLERY_REQUEST_CODE
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.SOMETHING_WRONG_WITH_IMAGE
 import com.baldystudios.androidjetpackmviadvanced.util.MessageType
@@ -40,13 +42,9 @@ import javax.inject.Inject
 class UpdateBlogFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory,
+    viewModelFactory: ViewModelProvider.Factory,
     private val requestManager: RequestManager
-) : BaseBlogFragment(R.layout.fragment_update_blog) {
-
-    val viewModel: BlogViewModel by viewModels {
-        viewModelFactory
-    }
+) : BaseBlogFragment(R.layout.fragment_update_blog, viewModelFactory) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,10 +71,6 @@ constructor(
             viewState
         )
         super.onSaveInstanceState(outState)
-    }
-
-    override fun setupChannel() {
-        viewModel.setupChannel()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

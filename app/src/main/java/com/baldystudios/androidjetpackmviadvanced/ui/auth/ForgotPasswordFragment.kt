@@ -32,20 +32,12 @@ import javax.inject.Inject
 class ForgotPasswordFragment
 @Inject
 constructor(
-    private val viewModelFactory: ViewModelProvider.Factory
-) : Fragment(R.layout.fragment_forgot_password) {
-
-    private val TAG: String = "AppDebug"
-
-    val viewModel: AuthViewModel by viewModels {
-        viewModelFactory
-    }
+    viewModelFactory: ViewModelProvider.Factory
+): BaseAuthFragment(R.layout.fragment_forgot_password, viewModelFactory) {
 
     lateinit var webView: WebView
 
-    lateinit var uiCommunicationListener: UICommunicationListener
-
-    val webInteractionCallback = object : OnWebInteractionCallback {
+    val webInteractionCallback = object: OnWebInteractionCallback {
 
         override fun onError(errorMessage: String) {
             Log.e(TAG, "onError: $errorMessage")
@@ -55,7 +47,7 @@ constructor(
                     uiComponentType = UIComponentType.Dialog(),
                     messageType = MessageType.Error()
                 ),
-                stateMessageCallback = object: StateMessageCallback {
+                stateMessageCallback = object: StateMessageCallback{
                     override fun removeMessageFromStack() {
                         viewModel.clearStateMessage()
                     }
@@ -74,11 +66,6 @@ constructor(
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.cancelActiveJobs()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         webView = view.findViewById(R.id.webview)
@@ -91,9 +78,9 @@ constructor(
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun loadPasswordResetWebView() {
+    fun loadPasswordResetWebView(){
         uiCommunicationListener.displayProgressBar(true)
-        webView.webViewClient = object : WebViewClient() {
+        webView.webViewClient = object: WebViewClient(){
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 uiCommunicationListener.displayProgressBar(false)
@@ -101,11 +88,9 @@ constructor(
         }
         webView.loadUrl(Constants.PASSWORD_RESET_URL)
         webView.settings.javaScriptEnabled = true
-        webView.addJavascriptInterface(
-            WebAppInterface(webInteractionCallback),
-            "AndroidTextListener"
-        )
+        webView.addJavascriptInterface(WebAppInterface(webInteractionCallback), "AndroidTextListener")
     }
+
 
 
     class WebAppInterface
@@ -130,7 +115,7 @@ constructor(
             callback.onLoading(isLoading)
         }
 
-        interface OnWebInteractionCallback {
+        interface OnWebInteractionCallback{
 
             fun onSuccess(email: String)
 
@@ -140,8 +125,8 @@ constructor(
         }
     }
 
-    fun onPasswordResetLinkSent() {
-        CoroutineScope(Main).launch {
+    fun onPasswordResetLinkSent(){
+        CoroutineScope(Main).launch{
             parent_view.removeView(webView)
             webView.destroy()
 
@@ -157,12 +142,4 @@ constructor(
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            uiCommunicationListener = context as UICommunicationListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement UICommunicationListener")
-        }
-    }
 }
