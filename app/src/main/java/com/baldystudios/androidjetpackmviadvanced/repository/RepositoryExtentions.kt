@@ -56,6 +56,7 @@ suspend fun <T> safeApiCall(
                     )
                 }
             }
+
         }
     }
 }
@@ -102,7 +103,7 @@ fun <ViewState> buildError(
 
 private fun convertErrorBody(throwable: HttpException): String? {
     return try {
-        throwable.response()?.errorBody()?.toString()
+        throwable.response()?.errorBody()?.string()
     } catch (exception: Exception) {
         UNKNOWN_ERROR
     }

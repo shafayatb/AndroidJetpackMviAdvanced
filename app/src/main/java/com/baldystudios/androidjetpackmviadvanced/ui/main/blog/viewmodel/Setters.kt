@@ -63,7 +63,7 @@ fun BlogViewModel.setBlogFilter(filter: String?){
 // Note: "-" = DESC, "" = ASC
 @FlowPreview
 @UseExperimental(ExperimentalCoroutinesApi::class)
-fun BlogViewModel.setBlogOrder(order: String){
+fun BlogViewModel.setBlogOrder(order: String?){
     val update = getCurrentViewStateOrNew()
     update.blogFields.order = order
     setViewState(update)

@@ -13,14 +13,14 @@ interface OpenApiAuthService {
 
     @POST("account/login")
     @FormUrlEncoded
-    fun login(
+    suspend fun login(
         @Field("username") username: String,
         @Field("password") password: String
     ): LoginResponse
 
     @POST("account/register")
     @FormUrlEncoded
-    fun register(
+    suspend fun register(
         @FieldMap registerUserMap: Map<String, String>
     ): RegistrationResponse
 
