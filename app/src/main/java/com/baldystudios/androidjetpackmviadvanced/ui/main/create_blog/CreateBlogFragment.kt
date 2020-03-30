@@ -112,7 +112,7 @@ constructor(
         viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
 
             stateMessage?.let {
-                if (it.equals(SUCCESS_BLOG_CREATED)) {
+                if (it.response.message.equals(SUCCESS_BLOG_CREATED)) {
                     viewModel.clearNewBlogFields()
                 }
                 uiCommunicationListener.onResponseReceived(
@@ -127,7 +127,11 @@ constructor(
         })
     }
 
-    fun setBlogProperties(title: String?, body: String?, image: Uri?) {
+    fun setBlogProperties(
+        title: String? = "",
+        body: String? = "",
+        image: Uri?
+    ) {
         if (image != null) {
             requestManager
                 .load(image)
