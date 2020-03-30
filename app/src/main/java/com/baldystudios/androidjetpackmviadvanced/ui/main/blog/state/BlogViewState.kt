@@ -24,7 +24,6 @@ data class BlogViewState(
         var blogList: List<BlogPost>? = null,
         var searchQuery: String? = null,
         var page: Int? = null,
-        //var isQueryInProgress: Boolean = false,
         var isQueryExhausted: Boolean? = null,
         var filter: String? = null,
         var order: String? = null,

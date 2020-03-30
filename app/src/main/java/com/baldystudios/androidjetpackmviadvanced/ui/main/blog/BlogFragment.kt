@@ -33,6 +33,7 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Com
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
+import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.isPaginationDone
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
 import com.bumptech.glide.RequestManager
@@ -112,6 +113,7 @@ constructor(
 
         viewModel.viewState.observe(viewLifecycleOwner, Observer{ viewState ->
             if(viewState != null){
+                Log.d(TAG, "isQueryExhausted?: ${viewState.blogFields.isQueryExhausted}")
                 recyclerAdapter.apply {
                     viewState.blogFields.blogList?.let {
                         preloadGlideImages(
@@ -136,14 +138,19 @@ constructor(
         viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
 
             stateMessage?.let {
-                uiCommunicationListener.onResponseReceived(
-                    response = it.response,
-                    stateMessageCallback = object: StateMessageCallback {
-                        override fun removeMessageFromStack() {
-                            viewModel.clearStateMessage()
+                if(isPaginationDone(stateMessage.response.message)){
+                    viewModel.setQueryExhausted(true)
+                    viewModel.clearStateMessage()
+                }else{
+                    uiCommunicationListener.onResponseReceived(
+                        response = it.response,
+                        stateMessageCallback = object: StateMessageCallback {
+                            override fun removeMessageFromStack() {
+                                viewModel.clearStateMessage()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         })
     }
