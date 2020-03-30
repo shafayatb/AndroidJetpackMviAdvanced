@@ -16,7 +16,7 @@ data class BlogViewState(
     // ViewBlogFragment vars
     var viewBlogFields: ViewBlogFields = ViewBlogFields(),
     // UpdateBlogFragment vars
-    var updatedBlogFields: UpdateBlogFields = UpdateBlogFields()
+    var updatedBlogFields: UpdatedBlogFields = UpdatedBlogFields()
 ) : Parcelable {
 
     @Parcelize
@@ -37,7 +37,7 @@ data class BlogViewState(
     ) : Parcelable
 
     @Parcelize
-    data class UpdateBlogFields(
+    data class UpdatedBlogFields(
         var updatedBlogTitle: String? = null,
         var updatedBlogBody: String? = null,
         var updatedImageUri: Uri? = null

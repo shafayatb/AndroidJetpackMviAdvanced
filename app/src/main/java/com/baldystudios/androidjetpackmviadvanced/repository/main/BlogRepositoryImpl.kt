@@ -15,8 +15,7 @@ import com.baldystudios.androidjetpackmviadvanced.repository.buildError
 import com.baldystudios.androidjetpackmviadvanced.repository.safeApiCall
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.BlogFields
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.ViewBlogFields
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.*
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.ERROR_UNKNOWN
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_HAS_PERMISSION_TO_EDIT
@@ -247,7 +246,13 @@ constructor(
                         data = BlogViewState(
                             viewBlogFields = ViewBlogFields(
                                 blogPost = updatedBlogPost
+                            ),
+                            updatedBlogFields = UpdatedBlogFields(
+                                updatedBlogTitle = updatedBlogPost.title,
+                                updatedBlogBody = updatedBlogPost.body,
+                                updatedImageUri = null
                             )
+
                         ),
                         stateEvent = stateEvent
                     )

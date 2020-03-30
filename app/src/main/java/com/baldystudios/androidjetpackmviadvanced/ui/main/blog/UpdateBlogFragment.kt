@@ -15,15 +15,13 @@ import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.getUpdatedBlogUri
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedBody
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedTitle
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.setUpdatedUri
+import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.Constants.Companion.GALLERY_REQUEST_CODE
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.SOMETHING_WRONG_WITH_IMAGE
 import com.baldystudios.androidjetpackmviadvanced.util.MessageType
 import com.baldystudios.androidjetpackmviadvanced.util.Response
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
+import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_UPDATED
 import com.baldystudios.androidjetpackmviadvanced.util.UIComponentType
 import com.bumptech.glide.RequestManager
 import com.theartofdev.edmodo.cropper.CropImage
@@ -168,6 +166,11 @@ constructor(
         viewModel.stateMessage.observe(viewLifecycleOwner, Observer { stateMessage ->
 
             stateMessage?.let {
+
+                if (stateMessage.response.message.equals(SUCCESS_BLOG_UPDATED)) {
+                    viewModel.updateListItem()
+                }
+
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
                     stateMessageCallback = object : StateMessageCallback {
@@ -181,9 +184,11 @@ constructor(
     }
 
     fun setBlogProperties(title: String?, body: String?, image: Uri?) {
-        requestManager
-            .load(image)
-            .into(blog_image)
+        image?.let {
+            requestManager
+                .load(it)
+                .into(blog_image)
+        }
         blog_title.setText(title)
         blog_body.setText(body)
     }
