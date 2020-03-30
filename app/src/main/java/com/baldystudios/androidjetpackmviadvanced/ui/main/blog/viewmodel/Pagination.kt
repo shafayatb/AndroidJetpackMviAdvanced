@@ -2,7 +2,6 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.util.Log
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
-import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogStateEvent.RestoreBlogListFromCache
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,9 +19,9 @@ fun BlogViewModel.resetPage() {
 @FlowPreview
 @UseExperimental(ExperimentalCoroutinesApi::class)
 fun BlogViewModel.refreshFromCache() {
-    if (!isJobAlreadyActive(RestoreBlogListFromCache())) {
+    if (!isJobAlreadyActive(BlogSearchEvent())) {
         setQueryExhausted(false)
-        setStateEvent(RestoreBlogListFromCache())
+        setStateEvent(BlogSearchEvent(false))
     }
 }
 

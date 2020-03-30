@@ -13,7 +13,6 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.returnOrderedBlogQ
 import com.baldystudios.androidjetpackmviadvanced.repository.NetworkBoundResource
 import com.baldystudios.androidjetpackmviadvanced.repository.buildError
 import com.baldystudios.androidjetpackmviadvanced.repository.safeApiCall
-import com.baldystudios.androidjetpackmviadvanced.repository.safeCacheCall
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState.BlogFields
@@ -25,7 +24,6 @@ import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -42,8 +40,7 @@ constructor(
     val openApiMainService: OpenApiMainService,
     val blogPostDao: BlogPostDao,
     val sessionManager: SessionManager
-): BlogRepository
-{
+) : BlogRepository {
 
     private val TAG: String = "AppDebug"
     override fun searchBlogPosts(
@@ -53,7 +50,7 @@ constructor(
         page: Int,
         stateEvent: StateEvent
     ): Flow<DataState<BlogViewState>> {
-        return object: NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
+        return object : NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
             dispatcher = IO,
             stateEvent = stateEvent,
             apiCall = {
@@ -71,20 +68,23 @@ constructor(
                     page = page
                 )
             }
-        ){
+        ) {
             override suspend fun updateCache(networkObject: BlogListSearchResponse) {
                 val blogPostList = networkObject.toList()
                 withContext(IO) {
-                    for(blogPost in blogPostList){
-                        try{
+                    for (blogPost in blogPostList) {
+                        try {
                             // Launch each insert as a separate job to be executed in parallel
                             launch {
                                 Log.d(TAG, "updateLocalDb: inserting blog: ${blogPost}")
                                 blogPostDao.insert(blogPost)
                             }
-                        }catch (e: Exception){
-                            Log.e(TAG, "updateLocalDb: error updating cache data on blog post with slug: ${blogPost.slug}. " +
-                                    "${e.message}")
+                        } catch (e: Exception) {
+                            Log.e(
+                                TAG,
+                                "updateLocalDb: error updating cache data on blog post with slug: ${blogPost.slug}. " +
+                                        "${e.message}"
+                            )
                             // Could send an error report here or something but I don't think you should throw an error to the UI
                             // Since there could be many blog posts being inserted/updated.
                         }
@@ -108,49 +108,12 @@ constructor(
         }.result
     }
 
-    override fun restoreBlogListFromCache(
-        query: String,
-        filterAndOrder: String,
-        page: Int,
-        stateEvent: StateEvent
-    ) = flow{
-
-        val cacheResult = safeCacheCall(IO){
-            blogPostDao.returnOrderedBlogQuery(
-                query = query,
-                filterAndOrder = filterAndOrder,
-                page = page)
-        }
-        emit(
-            object: CacheResponseHandler<BlogViewState, List<BlogPost>>(
-                response = cacheResult,
-                stateEvent = stateEvent
-            ){
-                override suspend fun handleSuccess(
-                    resultObj: List<BlogPost>
-                ): DataState<BlogViewState> {
-                    val viewState = BlogViewState(
-                        blogFields = BlogFields(
-                            blogList = resultObj
-                        )
-                    )
-                    return DataState.data(
-                        response = null,
-                        data = viewState,
-                        stateEvent = stateEvent
-                    )
-                }
-
-            }.getResult()
-        )
-    }
-
     override fun isAuthorOfBlogPost(
         authToken: AuthToken,
         slug: String,
         stateEvent: StateEvent
     ) = flow {
-        val apiResult = safeApiCall(IO){
+        val apiResult = safeApiCall(IO) {
             openApiMainService.isAuthorOfBlogPost(
                 "Token ${authToken.token!!}",
                 slug
@@ -158,10 +121,10 @@ constructor(
         }
 
         emit(
-            object: ApiResponseHandler<BlogViewState, GenericResponse>(
+            object : ApiResponseHandler<BlogViewState, GenericResponse>(
                 response = apiResult,
                 stateEvent = stateEvent
-            ){
+            ) {
                 override suspend fun handleSuccess(resultObj: GenericResponse): DataState<BlogViewState> {
                     val viewState = BlogViewState(
                         viewBlogFields = ViewBlogFields(
@@ -205,21 +168,21 @@ constructor(
         authToken: AuthToken,
         blogPost: BlogPost,
         stateEvent: StateEvent
-    ) =  flow {
-        val apiResult = safeApiCall(IO){
+    ) = flow {
+        val apiResult = safeApiCall(IO) {
             openApiMainService.deleteBlogPost(
                 "Token ${authToken.token!!}",
                 blogPost.slug
             )
         }
         emit(
-            object: ApiResponseHandler<BlogViewState, GenericResponse>(
+            object : ApiResponseHandler<BlogViewState, GenericResponse>(
                 response = apiResult,
                 stateEvent = stateEvent
-            ){
+            ) {
                 override suspend fun handleSuccess(resultObj: GenericResponse): DataState<BlogViewState> {
 
-                    if(resultObj.response == SUCCESS_BLOG_DELETED){
+                    if (resultObj.response == SUCCESS_BLOG_DELETED) {
                         blogPostDao.deleteBlogPost(blogPost)
                         return DataState.data(
                             response = Response(
@@ -229,8 +192,7 @@ constructor(
                             ),
                             stateEvent = stateEvent
                         )
-                    }
-                    else{
+                    } else {
                         return buildError(
                             ERROR_UNKNOWN,
                             UIComponentType.Dialog(),
@@ -249,9 +211,9 @@ constructor(
         body: RequestBody,
         image: MultipartBody.Part?,
         stateEvent: StateEvent
-    ) = flow{
+    ) = flow {
 
-        val apiResult = safeApiCall(IO){
+        val apiResult = safeApiCall(IO) {
             openApiMainService.updateBlog(
                 "Token ${authToken.token!!}",
                 slug,
@@ -261,10 +223,10 @@ constructor(
             )
         }
         emit(
-            object: ApiResponseHandler<BlogViewState, BlogCreateUpdateResponse>(
+            object : ApiResponseHandler<BlogViewState, BlogCreateUpdateResponse>(
                 response = apiResult,
                 stateEvent = stateEvent
-            ){
+            ) {
                 override suspend fun handleSuccess(resultObj: BlogCreateUpdateResponse): DataState<BlogViewState> {
 
                     val updatedBlogPost = resultObj.toBlogPost()
@@ -282,7 +244,7 @@ constructor(
                             uiComponentType = UIComponentType.Toast(),
                             messageType = MessageType.Success()
                         ),
-                        data =  BlogViewState(
+                        data = BlogViewState(
                             viewBlogFields = ViewBlogFields(
                                 blogPost = updatedBlogPost
                             )

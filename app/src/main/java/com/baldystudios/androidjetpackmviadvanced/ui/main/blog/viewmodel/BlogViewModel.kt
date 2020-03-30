@@ -1,7 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.content.SharedPreferences
-import androidx.lifecycle.viewModelScope
 import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils
 import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepositoryImpl
@@ -15,7 +14,6 @@ import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_ORDER
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType
@@ -32,7 +30,7 @@ constructor(
     private val blogRepository: BlogRepositoryImpl,
     private val sharedPreferences: SharedPreferences,
     private val editor: SharedPreferences.Editor
-): BaseViewModel<BlogViewState>(){
+) : BaseViewModel<BlogViewState>() {
 
     init {
         setBlogFilter(
@@ -60,6 +58,7 @@ constructor(
             blogFields.isQueryExhausted?.let { isQueryExhausted ->
                 setQueryExhausted(isQueryExhausted)
             }
+
         }
 
         data.viewBlogFields.let { viewBlogFields ->
@@ -90,24 +89,17 @@ constructor(
     }
 
     override fun setStateEvent(stateEvent: StateEvent) {
-        if(!isJobAlreadyActive(stateEvent)){
+        if (!isJobAlreadyActive(stateEvent)) {
             sessionManager.cachedToken.value?.let { authToken ->
-                val job: Flow<DataState<BlogViewState>> = when(stateEvent){
+                val job: Flow<DataState<BlogViewState>> = when (stateEvent) {
 
                     is BlogSearchEvent -> {
-                        clearLayoutManagerState()
+                        if (stateEvent.clearLayoutManagerState) {
+                            clearLayoutManagerState()
+                        }
                         blogRepository.searchBlogPosts(
                             stateEvent = stateEvent,
                             authToken = authToken,
-                            query = getSearchQuery(),
-                            filterAndOrder = getOrder() + getFilter(),
-                            page = getPage()
-                        )
-                    }
-
-                    is RestoreBlogListFromCache -> {
-                        blogRepository.restoreBlogListFromCache(
-                            stateEvent = stateEvent,
                             query = getSearchQuery(),
                             filterAndOrder = getOrder() + getFilter(),
                             page = getPage()
@@ -151,7 +143,7 @@ constructor(
                     }
 
                     else -> {
-                        flow{
+                        flow {
                             emit(
                                 DataState.error(
                                     response = Response(
@@ -166,7 +158,7 @@ constructor(
                     }
                 }
                 launchJob(stateEvent, job)
-            }?: sessionManager.logout()
+            } ?: sessionManager.logout()
         }
     }
 
@@ -174,7 +166,7 @@ constructor(
         return BlogViewState()
     }
 
-    fun saveFilterOptions(filter: String, order: String){
+    fun saveFilterOptions(filter: String, order: String) {
         editor.putString(BLOG_FILTER, filter)
         editor.apply()
 
