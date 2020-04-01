@@ -20,7 +20,7 @@ abstract class BaseViewModel<ViewState> : ViewModel()
 
     private val _viewState: MutableLiveData<ViewState> = MutableLiveData()
 
-    private val dataChannelManager: DataChannelManager<ViewState>
+    val dataChannelManager: DataChannelManager<ViewState>
             = object: DataChannelManager<ViewState>(){
 
         override fun handleNewData(data: ViewState) {
@@ -42,9 +42,7 @@ abstract class BaseViewModel<ViewState> : ViewModel()
         return dataChannelManager.messageStack.size
     }
 
-    fun setupChannel(){
-        dataChannelManager.setupChannel()
-    }
+    fun setupChannel() = dataChannelManager.setupChannel()
 
     abstract fun handleNewData(data: ViewState)
 
@@ -64,6 +62,7 @@ abstract class BaseViewModel<ViewState> : ViewModel()
     }
 
     fun isJobAlreadyActive(stateEvent: StateEvent): Boolean {
+        Log.d(TAG, "isJobAlreadyActive?: ${dataChannelManager.isJobAlreadyActive(stateEvent)} ")
         return dataChannelManager.isJobAlreadyActive(stateEvent)
     }
 
