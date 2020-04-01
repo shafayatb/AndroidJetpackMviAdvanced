@@ -22,47 +22,25 @@ constructor(
     @LayoutRes
     private val layoutRes: Int,
     private val viewModelFactory: ViewModelProvider.Factory
-) : Fragment(layoutRes) {
+): Fragment(layoutRes){
 
     val TAG: String = "AppDebug"
 
-    val viewModel: AuthViewModel by viewModels {
+    val viewModel: AuthViewModel by viewModels{
         viewModelFactory
     }
 
     lateinit var uiCommunicationListener: UICommunicationListener
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        findNavController()
-            .addOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
-    private val onDestinationChangeListener = object : NavController.OnDestinationChangedListener {
-        override fun onDestinationChanged(
-            controller: NavController,
-            destination: NavDestination,
-            arguments: Bundle?
-        ) {
-            setupChannel()
-        }
-    }
-
     private fun setupChannel() = viewModel.setupChannel()
-
-    override fun onDetach() {
-        super.onDetach()
-        findNavController()
-            .removeOnDestinationChangedListener(onDestinationChangeListener)
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try {
+        setupChannel()
+        try{
             uiCommunicationListener = context as UICommunicationListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement UICommunicationListener")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement UICommunicationListener" )
         }
 
     }

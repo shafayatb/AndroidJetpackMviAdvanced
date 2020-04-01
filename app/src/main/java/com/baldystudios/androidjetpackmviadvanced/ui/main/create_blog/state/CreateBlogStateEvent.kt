@@ -13,6 +13,10 @@ sealed class CreateBlogStateEvent: StateEvent {
         override fun errorInfo(): String {
             return "Unable to create a new blog post."
         }
+
+        override fun toString(): String {
+            return "CreateBlogStateEvent"
+        }
     }
 
     class None: CreateBlogStateEvent() {

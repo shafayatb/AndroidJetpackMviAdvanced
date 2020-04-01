@@ -41,20 +41,9 @@ constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
-        findNavController()
-            .addOnDestinationChangedListener(onDestinationChangeListener)
+
     }
 
-    private val onDestinationChangeListener
-            = object: NavController.OnDestinationChangedListener {
-        override fun onDestinationChanged(
-            controller: NavController,
-            destination: NavDestination,
-            arguments: Bundle?
-        ) {
-            setupChannel()
-        }
-    }
 
     private fun setupChannel() = viewModel.setupChannel()
 
@@ -67,14 +56,9 @@ constructor(
         )
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        findNavController()
-            .removeOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        setupChannel()
         try{
             uiCommunicationListener = context as UICommunicationListener
         }catch(e: ClassCastException){

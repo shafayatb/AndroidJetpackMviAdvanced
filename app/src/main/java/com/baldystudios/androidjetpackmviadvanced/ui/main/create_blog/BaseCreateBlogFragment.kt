@@ -9,26 +9,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
+import kotlinx.coroutines.FlowPreview
 
 
+@FlowPreview
 abstract class BaseCreateBlogFragment
 constructor(
     @LayoutRes
     private val layoutRes: Int,
     private val viewModelFactory: ViewModelProvider.Factory
-): Fragment(layoutRes)
-{
+) : Fragment(layoutRes) {
 
     val TAG: String = "AppDebug"
 
-    val viewModel: CreateBlogViewModel by viewModels{
+    val viewModel: CreateBlogViewModel by viewModels {
         viewModelFactory
     }
 
@@ -37,24 +36,11 @@ constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.createBlogFragment, activity as AppCompatActivity)
-        findNavController()
-            .addOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
-    private val onDestinationChangeListener
-            = object: NavController.OnDestinationChangedListener {
-        override fun onDestinationChanged(
-            controller: NavController,
-            destination: NavDestination,
-            arguments: Bundle?
-        ) {
-            setupChannel()
-        }
     }
 
     private fun setupChannel() = viewModel.setupChannel()
 
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
@@ -63,18 +49,13 @@ constructor(
         )
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        findNavController()
-            .removeOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try{
+        setupChannel()
+        try {
             uiCommunicationListener = context as UICommunicationListener
-        }catch(e: ClassCastException){
-            Log.e(TAG, "$context must implement UICommunicationListener" )
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement UICommunicationListener")
         }
 
     }

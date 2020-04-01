@@ -26,11 +26,11 @@ constructor(
     @LayoutRes
     private val layoutRes: Int,
     private val viewModelFactory: ViewModelProvider.Factory
-) : Fragment(layoutRes) {
+): Fragment(layoutRes){
 
     val TAG: String = "AppDebug"
 
-    val viewModel: AccountViewModel by viewModels {
+    val viewModel: AccountViewModel by viewModels{
         viewModelFactory
     }
 
@@ -39,24 +39,11 @@ constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.accountFragment, activity as AppCompatActivity)
-
-        findNavController()
-            .addOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
-    private val onDestinationChangeListener = object : NavController.OnDestinationChangedListener {
-        override fun onDestinationChanged(
-            controller: NavController,
-            destination: NavDestination,
-            arguments: Bundle?
-        ) {
-            setupChannel()
-        }
     }
 
     private fun setupChannel() = viewModel.setupChannel()
 
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
+    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
         NavigationUI.setupActionBarWithNavController(
             activity,
@@ -65,19 +52,14 @@ constructor(
         )
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        findNavController()
-            .removeOnDestinationChangedListener(onDestinationChangeListener)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try {
+        setupChannel()
+        try{
             uiCommunicationListener = context as UICommunicationListener
-        } catch (e: ClassCastException) {
-            Log.e(TAG, "$context must implement UICommunicationListener")
+        }catch(e: ClassCastException){
+            Log.e(TAG, "$context must implement UICommunicationListener" )
         }
-
     }
+
 }

@@ -9,6 +9,10 @@ sealed class AccountStateEvent: StateEvent {
         override fun errorInfo(): String {
             return "Error retrieving account properties."
         }
+
+        override fun toString(): String {
+            return "GetAccountPropertiesEvent"
+        }
     }
 
     data class UpdateAccountPropertiesEvent(
@@ -18,6 +22,10 @@ sealed class AccountStateEvent: StateEvent {
 
         override fun errorInfo(): String {
             return "Error updating account properties."
+        }
+
+        override fun toString(): String {
+            return "UpdateAccountPropertiesEvent"
         }
     }
 
@@ -30,6 +38,10 @@ sealed class AccountStateEvent: StateEvent {
         override fun errorInfo(): String {
             return "Error changing password."
         }
+
+        override fun toString(): String {
+            return "ChangePasswordEvent"
+        }
     }
 
     class None: AccountStateEvent() {
@@ -37,5 +49,4 @@ sealed class AccountStateEvent: StateEvent {
             return "None"
         }
     }
-
 }
