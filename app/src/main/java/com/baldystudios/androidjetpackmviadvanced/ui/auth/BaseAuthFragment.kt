@@ -34,9 +34,13 @@ constructor(
 
     private fun setupChannel() = viewModel.setupChannel()
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupChannel()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        setupChannel()
         try{
             uiCommunicationListener = context as UICommunicationListener
         }catch(e: ClassCastException){

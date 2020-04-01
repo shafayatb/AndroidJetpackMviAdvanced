@@ -41,7 +41,7 @@ constructor(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
-
+        setupChannel()
     }
 
 
@@ -58,7 +58,6 @@ constructor(
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        setupChannel()
         try{
             uiCommunicationListener = context as UICommunicationListener
         }catch(e: ClassCastException){
