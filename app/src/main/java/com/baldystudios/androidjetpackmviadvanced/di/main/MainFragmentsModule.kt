@@ -2,11 +2,11 @@ package com.baldystudios.androidjetpackmviadvanced.di.main
 
 import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.ViewModelProvider
-import com.baldystudios.androidjetpackmviadvanced.fragments.auth.AuthFragmentFactory
 import com.baldystudios.androidjetpackmviadvanced.fragments.main.account.AccountFragmentFactory
 import com.baldystudios.androidjetpackmviadvanced.fragments.main.blog.BlogFragmentFactory
 import com.baldystudios.androidjetpackmviadvanced.fragments.main.create_blog.CreateBlogFragmentFactory
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -30,9 +30,10 @@ object MainFragmentsModule {
     @Named("BlogFragmentFactory")
     fun provideBlogFragmentFactory(
         viewModelFactory: ViewModelProvider.Factory,
+        requestOptions: RequestOptions,
         requestManager: RequestManager
     ): FragmentFactory {
-        return BlogFragmentFactory(viewModelFactory, requestManager)
+        return BlogFragmentFactory(viewModelFactory, requestOptions, requestManager)
     }
 
     @JvmStatic

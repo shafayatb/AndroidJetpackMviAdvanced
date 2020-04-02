@@ -35,7 +35,9 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.isPaginationDone
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.TopSpacingItemDecoration
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.fragment_blog.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -47,13 +49,14 @@ class BlogFragment
 @Inject
 constructor(
     viewModelFactory: ViewModelProvider.Factory,
-    private val requestManager: RequestManager
+    private val requestOptions: RequestOptions
 ) : BaseBlogFragment(R.layout.fragment_blog, viewModelFactory),
     BlogListAdapter.Interaction,
     SwipeRefreshLayout.OnRefreshListener {
 
     private lateinit var searchView: SearchView
     private lateinit var recyclerAdapter: BlogListAdapter
+    private var requestManager: RequestManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +66,16 @@ constructor(
                 viewModel.setViewState(viewState)
             }
         }
+
+    }
+
+    private fun setupGlide() {
+        val requestOptions = RequestOptions
+            .placeholderOf(R.drawable.default_image)
+            .error(R.drawable.default_image)
+
+        requestManager = Glide.with(this)
+            .applyDefaultRequestOptions(requestOptions)
     }
 
     /**
@@ -87,6 +100,7 @@ constructor(
         (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(false)
         setHasOptionsMenu(true)
         swipe_refresh.setOnRefreshListener(this)
+        setupGlide()
         initRecyclerView()
         subscribeObservers()
     }
@@ -114,7 +128,7 @@ constructor(
                 recyclerAdapter.apply {
                     viewState.blogFields.blogList?.let {
                         preloadGlideImages(
-                            requestManager = requestManager,
+                            requestManager = requestManager as RequestManager,
                             list = it
                         )
                     }
@@ -211,7 +225,7 @@ constructor(
             addItemDecoration(topSpacingDecorator)
 
             recyclerAdapter = BlogListAdapter(
-                requestManager,
+                requestManager as RequestManager,
                 this@BlogFragment
             )
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -262,6 +276,7 @@ constructor(
         super.onDestroyView()
         // clear references (can leak memory)
         blog_post_recyclerview.adapter = null
+        requestManager = null
     }
 
     override fun onRefresh() {
