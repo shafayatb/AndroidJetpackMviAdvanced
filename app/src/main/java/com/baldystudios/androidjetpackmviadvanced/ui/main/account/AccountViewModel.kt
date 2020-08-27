@@ -81,7 +81,7 @@ constructor(
                 }
             }
             launchJob(stateEvent, job)
-        } ?: sessionManager.logout()
+        }
     }
 
     fun setAccountPropertiesData(accountProperties: AccountProperties) {

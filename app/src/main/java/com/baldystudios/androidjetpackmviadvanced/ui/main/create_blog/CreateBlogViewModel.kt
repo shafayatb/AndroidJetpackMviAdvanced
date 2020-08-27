@@ -78,7 +78,7 @@ constructor(
                 }
             }
             launchJob(stateEvent, job)
-        } ?: sessionManager.logout()
+        }
     }
 
     override fun initNewViewState(): CreateBlogViewState {
