@@ -6,13 +6,11 @@ import android.content.Context
 import android.os.Parcelable
 import android.util.Log
 import androidx.annotation.IdRes
-import androidx.annotation.NavigationRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.fragments.main.account.AccountNavHostFragment
@@ -50,10 +48,10 @@ class BottomNavController(
         }
     }
 
-    fun setupBottomNavigationBackStack(previousBackStack: BackStack?){
-        navigationBackStack = previousBackStack?.let{
+    fun setupBottomNavigationBackStack(previousBackStack: BackStack?) {
+        navigationBackStack = previousBackStack?.let {
             it
-        }?: BackStack.of(appStartDestinationId)
+        } ?: BackStack.of(appStartDestinationId)
     }
 
     fun onNavigationItemSelected(menuItemId: Int = navigationBackStack.last()): Boolean {
@@ -85,7 +83,7 @@ class BottomNavController(
     }
 
     private fun createNavHost(menuItemId: Int) =
-        when(menuItemId){
+        when (menuItemId) {
 
             R.id.menu_nav_account -> AccountNavHostFragment.create(R.navigation.nav_account)
 
@@ -103,7 +101,7 @@ class BottomNavController(
             .findNavController()
 
         when {
-            navController.backStack.size > 2 ->{
+            navController.backStack.size > 2 -> {
                 navController.popBackStack()
             }
 
@@ -160,11 +158,11 @@ class BottomNavController(
     }
 
     // Execute when Navigation Graph changes.
-    interface OnNavigationGraphChanged{
+    interface OnNavigationGraphChanged {
         fun onGraphChange()
     }
 
-    interface OnNavigationReselectedListener{
+    interface OnNavigationReselectedListener {
 
         fun onReselectNavItem(navController: NavController, fragment: Fragment)
     }
