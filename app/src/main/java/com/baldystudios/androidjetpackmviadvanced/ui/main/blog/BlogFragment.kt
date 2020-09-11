@@ -104,7 +104,13 @@ constructor(
 
     override fun onResume() {
         super.onResume()
-        viewModel.refreshFromCache()
+        if(recyclerAdapter.itemCount == 0){
+            viewModel.loadFirstPage().let {
+                resetUI()
+            }
+        } else {
+            viewModel.refreshFromCache()
+        }
     }
 
     override fun onPause() {
