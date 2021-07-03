@@ -29,9 +29,9 @@ constructor(
 
     private val TAG: String = "AppDebug"
 
-    private val _cachedToken = MutableLiveData<AuthToken>()
+    private val _cachedToken: MutableLiveData<AuthToken?> = MutableLiveData()
 
-    val cachedToken: LiveData<AuthToken>
+    val cachedToken: LiveData<AuthToken?>
         get() = _cachedToken
 
     fun login(newValue: AuthToken){
@@ -66,7 +66,7 @@ constructor(
     }
 
     fun setValue(newValue: AuthToken?) {
-        GlobalScope.launch(Main) {
+        CoroutineScope(Main).launch {
             if (_cachedToken.value != newValue) {
                 _cachedToken.value = newValue
             }
@@ -85,7 +85,7 @@ constructor(
                     else -> false
                 }
             } else {
-                cm.activeNetworkInfo.isConnected
+                cm.activeNetworkInfo!!.isConnected
             }
         } catch (e: Exception) {
             Log.e(TAG, "isConnectedToInternet: ${e.message}")

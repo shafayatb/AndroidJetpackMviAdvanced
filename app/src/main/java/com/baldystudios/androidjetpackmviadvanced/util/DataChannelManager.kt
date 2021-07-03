@@ -2,15 +2,16 @@ package com.baldystudios.androidjetpackmviadvanced.util
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 abstract class DataChannelManager<ViewState> {
 
     private val TAG: String = "AppDebug"

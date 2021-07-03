@@ -2,7 +2,6 @@ package com.baldystudios.androidjetpackmviadvanced.repository.main
 
 import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.OpenApiMainService
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
@@ -17,8 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-@FlowPreview
-@MainScope
+
 class AccountRepositoryImpl
 @Inject
 constructor(

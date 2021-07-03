@@ -9,23 +9,27 @@ import com.baldystudios.androidjetpackmviadvanced.repository.auth.AuthRepository
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.FlowPreview
 import retrofit2.Retrofit
+import javax.inject.Singleton
 
+@FlowPreview
 @Module
+@InstallIn(SingletonComponent::class)
 object AuthModule {
 
-    @JvmStatic
-    @AuthScope
     @Provides
+    @Singleton
     fun provideFakeApiService(retrofitBuilder: Retrofit.Builder): OpenApiAuthService {
         return retrofitBuilder
             .build()
             .create(OpenApiAuthService::class.java)
     }
 
-    @JvmStatic
-    @AuthScope
     @Provides
+    @Singleton
     fun provideAuthRepository(
         sessionManager: SessionManager,
         authTokenDao: AuthTokenDao,

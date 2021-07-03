@@ -1,7 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel
 
 import android.content.SharedPreferences
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils
 import com.baldystudios.androidjetpackmviadvanced.repository.main.BlogRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
@@ -12,17 +11,14 @@ import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.INVALID_STATE_EVENT
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_FILTER
 import com.baldystudios.androidjetpackmviadvanced.util.PreferenceKeys.Companion.BLOG_ORDER
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import javax.inject.Inject
 
-@ExperimentalCoroutinesApi
-@FlowPreview
-@MainScope
+@HiltViewModel
 class BlogViewModel
 @Inject
 constructor(
@@ -39,12 +35,10 @@ constructor(
                 BlogQueryUtils.BLOG_FILTER_DATE_UPDATED
             )
         )
-        setBlogOrder(
-            sharedPreferences.getString(
-                BLOG_ORDER,
-                BlogQueryUtils.BLOG_ORDER_DESC
-            )
-        )
+        sharedPreferences.getString(
+            BLOG_ORDER,
+            BlogQueryUtils.BLOG_ORDER_DESC
+        )?.let { setBlogOrder(it) }
     }
 
     override fun handleNewData(data: BlogViewState) {
@@ -145,7 +139,7 @@ constructor(
                     else -> {
                         flow {
                             emit(
-                                DataState.error(
+                                DataState.error<BlogViewState>(
                                     response = Response(
                                         message = INVALID_STATE_EVENT,
                                         uiComponentType = UIComponentType.None(),

@@ -29,6 +29,7 @@ import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Com
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_FILTER_USERNAME
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_ASC
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogQueryUtils.Companion.BLOG_ORDER_DESC
+import com.baldystudios.androidjetpackmviadvanced.ui.main.MainActivity
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewState
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
@@ -43,14 +44,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-class BlogFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory,
-    private val requestOptions: RequestOptions
-) : BaseBlogFragment(R.layout.fragment_blog, viewModelFactory),
+class BlogFragment : BaseBlogFragment(R.layout.fragment_blog),
     BlogListAdapter.Interaction,
     SwipeRefreshLayout.OnRefreshListener {
 

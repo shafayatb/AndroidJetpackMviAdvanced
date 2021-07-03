@@ -1,30 +1,20 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 
 import android.os.Bundle
-import android.util.Log
-import android.view.*
-import androidx.fragment.app.viewModels
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.ACCOUNT_VIEW_STATE_BUNDLE_KEY
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountStateEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountViewState
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import kotlinx.android.synthetic.main.fragment_update_account.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-class UpdateAccountFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory
-): BaseAccountFragment(R.layout.fragment_update_account, viewModelFactory) {
+class UpdateAccountFragment : BaseAccountFragment(R.layout.fragment_update_account) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +32,11 @@ constructor(
         subscribeObservers()
     }
 
-    private fun subscribeObservers(){
+    private fun subscribeObservers() {
 
-        viewModel.viewState.observe(viewLifecycleOwner, Observer{ viewState ->
-            if(viewState != null){
-                viewState.accountProperties?.let{
+        viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
+            if (viewState != null) {
+                viewState.accountProperties?.let {
                     setAccountDataFields(it)
                 }
             }
@@ -61,7 +51,7 @@ constructor(
             stateMessage?.let {
                 uiCommunicationListener.onResponseReceived(
                     response = it.response,
-                    stateMessageCallback = object: StateMessageCallback {
+                    stateMessageCallback = object : StateMessageCallback {
                         override fun removeMessageFromStack() {
                             viewModel.clearStateMessage()
                         }
@@ -71,16 +61,16 @@ constructor(
         })
     }
 
-    private fun setAccountDataFields(accountProperties: AccountProperties){
-        if(input_email.text.isNullOrBlank()){
+    private fun setAccountDataFields(accountProperties: AccountProperties) {
+        if (input_email.text.isNullOrBlank()) {
             input_email.setText(accountProperties.email)
         }
-        if(input_username.text.isNullOrBlank()){
+        if (input_username.text.isNullOrBlank()) {
             input_username.setText(accountProperties.username)
         }
     }
 
-    private fun saveChanges(){
+    private fun saveChanges() {
         viewModel.setStateEvent(
             AccountStateEvent.UpdateAccountPropertiesEvent(
                 input_email.text.toString(),
@@ -95,7 +85,7 @@ constructor(
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.save -> {
                 saveChanges()
                 return true

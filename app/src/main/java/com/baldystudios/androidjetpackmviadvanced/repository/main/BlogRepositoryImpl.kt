@@ -5,7 +5,6 @@ import com.baldystudios.androidjetpackmviadvanced.api.GenericResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.OpenApiMainService
 import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogCreateUpdateResponse
 import com.baldystudios.androidjetpackmviadvanced.api.main.responses.BlogListSearchResponse
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.models.BlogPost
 import com.baldystudios.androidjetpackmviadvanced.persistence.BlogPostDao
@@ -31,8 +30,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
 
-@FlowPreview
-@MainScope
+
 class BlogRepositoryImpl
 @Inject
 constructor(

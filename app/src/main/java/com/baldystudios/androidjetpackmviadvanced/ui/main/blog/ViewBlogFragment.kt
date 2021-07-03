@@ -20,20 +20,20 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.state.BlogViewSta
 import com.baldystudios.androidjetpackmviadvanced.ui.main.blog.viewmodel.*
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_view_blog.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-class ViewBlogFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory,
-    private val requestManager: RequestManager
-) : BaseBlogFragment(R.layout.fragment_view_blog, viewModelFactory) {
+@AndroidEntryPoint
+class ViewBlogFragment : BaseBlogFragment(R.layout.fragment_view_blog)
+{
+    @Inject
+    lateinit var options: RequestOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,7 +153,8 @@ constructor(
     }
 
     fun setBlogProperties(blogPost: BlogPost) {
-        requestManager
+        Glide.with(this)
+            .setDefaultRequestOptions(options)
             .load(blogPost.image)
             .into(blog_image)
         blog_title.setText(blogPost.title)

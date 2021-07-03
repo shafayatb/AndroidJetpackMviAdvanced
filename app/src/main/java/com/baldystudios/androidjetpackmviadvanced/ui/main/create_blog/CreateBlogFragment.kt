@@ -11,7 +11,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.AreYouSureCallback
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CREATE_BLOG_VIEW_STATE_BUNDLE_KEY
@@ -25,24 +24,23 @@ import com.baldystudios.androidjetpackmviadvanced.util.Response
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_CREATED
 import com.baldystudios.androidjetpackmviadvanced.util.UIComponentType
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_create_blog.*
-import kotlinx.coroutines.FlowPreview
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
 import javax.inject.Inject
 
-@FlowPreview
-class CreateBlogFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory,
-    private val requestManager: RequestManager
-) : BaseCreateBlogFragment(R.layout.fragment_create_blog, viewModelFactory) {
+@AndroidEntryPoint
+class CreateBlogFragment : BaseCreateBlogFragment(R.layout.fragment_create_blog) {
+
+    @Inject
+    lateinit var options: RequestOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,11 +131,13 @@ constructor(
         image: Uri?
     ) {
         if (image != null) {
-            requestManager
+            Glide.with(this)
+                .setDefaultRequestOptions(options)
                 .load(image)
                 .into(blog_image)
         } else {
-            requestManager
+            Glide.with(this)
+                .setDefaultRequestOptions(options)
                 .load(R.drawable.default_image)
                 .into(blog_image)
         }

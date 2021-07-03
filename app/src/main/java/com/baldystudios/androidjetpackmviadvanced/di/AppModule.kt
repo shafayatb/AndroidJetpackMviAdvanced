@@ -16,14 +16,16 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.RequestOptions
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 object AppModule{
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideRetrofitBuilder(): Retrofit.Builder{
@@ -32,7 +34,6 @@ object AppModule{
             .addConverterFactory(MoshiConverterFactory.create())
     }
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideAppDb(app: Application): AppDatabase {
@@ -42,21 +43,18 @@ object AppModule{
             .build()
     }
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideAuthTokenDao(db: AppDatabase): AuthTokenDao {
         return db.getAuthTokenDao()
     }
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideAccountPropertiesDao(db: AppDatabase): AccountPropertiesDao {
         return db.getAccountPropertiesDao()
     }
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideRequestOptions(): RequestOptions {
@@ -65,22 +63,12 @@ object AppModule{
             .error(R.drawable.default_image)
     }
 
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun provideGlideInstance(application: Application, requestOptions: RequestOptions): RequestManager {
-        return Glide.with(application)
-            .setDefaultRequestOptions(requestOptions)
-    }
-
-    @JvmStatic
     @Singleton
     @Provides
     fun provideSharedPreferences(application: Application):SharedPreferences{
         return application.getSharedPreferences(PreferenceKeys.APP_PREFERENCES, Context.MODE_PRIVATE)
     }
 
-    @JvmStatic
     @Singleton
     @Provides
     fun provideSharedPrefsEditor(sharedPreferences: SharedPreferences):SharedPreferences.Editor{

@@ -1,7 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.auth
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,35 +8,20 @@ import android.view.animation.TranslateAnimation
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
-import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.ForgotPasswordFragment.WebAppInterface.OnWebInteractionCallback
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import kotlinx.android.synthetic.main.fragment_forgot_password.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-@AuthScope
-class ForgotPasswordFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory
-): BaseAuthFragment(R.layout.fragment_forgot_password, viewModelFactory) {
+class ForgotPasswordFragment : BaseAuthFragment(R.layout.fragment_forgot_password) {
 
     lateinit var webView: WebView
 
-    val webInteractionCallback = object: OnWebInteractionCallback {
+    val webInteractionCallback = object : OnWebInteractionCallback {
 
         override fun onError(errorMessage: String) {
             Log.e(TAG, "onError: $errorMessage")
@@ -47,7 +31,7 @@ constructor(
                     uiComponentType = UIComponentType.Dialog(),
                     messageType = MessageType.Error()
                 ),
-                stateMessageCallback = object: StateMessageCallback{
+                stateMessageCallback = object : StateMessageCallback {
                     override fun removeMessageFromStack() {
                         viewModel.clearStateMessage()
                     }
@@ -78,9 +62,9 @@ constructor(
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    fun loadPasswordResetWebView(){
+    fun loadPasswordResetWebView() {
         uiCommunicationListener.displayProgressBar(true)
-        webView.webViewClient = object: WebViewClient(){
+        webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 uiCommunicationListener.displayProgressBar(false)
@@ -88,9 +72,11 @@ constructor(
         }
         webView.loadUrl(Constants.PASSWORD_RESET_URL)
         webView.settings.javaScriptEnabled = true
-        webView.addJavascriptInterface(WebAppInterface(webInteractionCallback), "AndroidTextListener")
+        webView.addJavascriptInterface(
+            WebAppInterface(webInteractionCallback),
+            "AndroidTextListener"
+        )
     }
-
 
 
     class WebAppInterface
@@ -115,7 +101,7 @@ constructor(
             callback.onLoading(isLoading)
         }
 
-        interface OnWebInteractionCallback{
+        interface OnWebInteractionCallback {
 
             fun onSuccess(email: String)
 
@@ -125,8 +111,8 @@ constructor(
         }
     }
 
-    fun onPasswordResetLinkSent(){
-        CoroutineScope(Main).launch{
+    fun onPasswordResetLinkSent() {
+        CoroutineScope(Main).launch {
             parent_view.removeView(webView)
             webView.destroy()
 

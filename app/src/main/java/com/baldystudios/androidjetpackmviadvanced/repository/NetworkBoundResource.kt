@@ -4,36 +4,32 @@ import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.NETWORK_ERROR
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-
-@FlowPreview
 abstract class NetworkBoundResource<NetworkObj, CacheObj, ViewState>
 constructor(
     private val dispatcher: CoroutineDispatcher,
     private val stateEvent: StateEvent,
     private val apiCall: suspend () -> NetworkObj?,
     private val cacheCall: suspend () -> CacheObj?
-)
-{
+) {
 
     private val TAG: String = "AppDebug"
 
-    val result: Flow<DataState<ViewState>> = flow{
+    val result: Flow<DataState<ViewState>> = flow {
 
         // ****** STEP 1: VIEW CACHE ******
         emit(returnCache(markJobComplete = false))
 
         // ****** STEP 2: MAKE NETWORK CALL, SAVE RESULT TO CACHE ******
-        val apiResult = safeApiCall(dispatcher){apiCall.invoke()}
+        val apiResult = safeApiCall(dispatcher) { apiCall.invoke() }
 
-        when(apiResult){
+        when (apiResult) {
             is ApiResult.GenericError -> {
                 emit(
-                    buildError(
-                        apiResult.errorMessage?.let { it }?: UNKNOWN_ERROR,
+                    buildError<ViewState>(
+                        apiResult.errorMessage?.let { it } ?: UNKNOWN_ERROR,
                         UIComponentType.Dialog(),
                         stateEvent
                     )
@@ -42,7 +38,7 @@ constructor(
 
             is ApiResult.NetworkError -> {
                 emit(
-                    buildError(
+                    buildError<ViewState>(
                         NETWORK_ERROR,
                         UIComponentType.Dialog(),
                         stateEvent
@@ -51,16 +47,15 @@ constructor(
             }
 
             is ApiResult.Success -> {
-                if(apiResult.value == null){
+                if (apiResult.value == null) {
                     emit(
-                        buildError(
+                        buildError<ViewState>(
                             UNKNOWN_ERROR,
                             UIComponentType.Dialog(),
                             stateEvent
                         )
                     )
-                }
-                else{
+                } else {
                     updateCache(apiResult.value as NetworkObj)
                 }
             }
@@ -72,14 +67,14 @@ constructor(
 
     private suspend fun returnCache(markJobComplete: Boolean): DataState<ViewState> {
 
-        val cacheResult = safeCacheCall(dispatcher){cacheCall.invoke()}
+        val cacheResult = safeCacheCall(dispatcher) { cacheCall.invoke() }
 
         var jobCompleteMarker: StateEvent? = null
-        if(markJobComplete){
+        if (markJobComplete) {
             jobCompleteMarker = stateEvent
         }
 
-        return object: CacheResponseHandler<ViewState, CacheObj>(
+        return object : CacheResponseHandler<ViewState, CacheObj>(
             response = cacheResult,
             stateEvent = jobCompleteMarker
         ) {

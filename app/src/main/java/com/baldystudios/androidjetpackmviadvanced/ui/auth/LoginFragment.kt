@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.LoginAttemptEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.LoginFields
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -18,14 +17,7 @@ import javax.inject.Inject
 /**
  * A simple [Fragment] subclass.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
-@AuthScope
-class LoginFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory
-) : BaseAuthFragment(R.layout.fragment_login, viewModelFactory) {
+class LoginFragment : BaseAuthFragment(R.layout.fragment_login) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

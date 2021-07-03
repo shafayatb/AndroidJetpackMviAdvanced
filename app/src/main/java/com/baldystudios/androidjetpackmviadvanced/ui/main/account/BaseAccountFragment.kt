@@ -7,58 +7,41 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.UICommunicationListener
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import dagger.hilt.android.AndroidEntryPoint
 
-@FlowPreview
-@ExperimentalCoroutinesApi
+@AndroidEntryPoint
 abstract class BaseAccountFragment
 constructor(
     @LayoutRes
-    private val layoutRes: Int,
-    private val viewModelFactory: ViewModelProvider.Factory
-): Fragment(layoutRes){
+    private val layoutRes: Int
+) : Fragment(layoutRes) {
 
     val TAG: String = "AppDebug"
 
-    val viewModel: AccountViewModel by viewModels{
-        viewModelFactory
-    }
+    val viewModel: AccountViewModel by activityViewModels()
 
     lateinit var uiCommunicationListener: UICommunicationListener
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupActionBarWithNavController(R.id.accountFragment, activity as AppCompatActivity)
         setupChannel()
     }
 
     private fun setupChannel() = viewModel.setupChannel()
 
-    fun setupActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity){
-        val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))
-        NavigationUI.setupActionBarWithNavController(
-            activity,
-            findNavController(),
-            appBarConfiguration
-        )
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        try{
+        try {
             uiCommunicationListener = context as UICommunicationListener
-        }catch(e: ClassCastException){
-            Log.e(TAG, "$context must implement UICommunicationListener" )
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement UICommunicationListener")
         }
     }
 

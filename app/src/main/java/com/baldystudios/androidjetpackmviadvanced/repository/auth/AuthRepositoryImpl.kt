@@ -5,7 +5,6 @@ import android.util.Log
 import com.baldystudios.androidjetpackmviadvanced.api.auth.OpenApiAuthService
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.LoginResponse
 import com.baldystudios.androidjetpackmviadvanced.api.auth.network_responses.RegistrationResponse
-import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.models.AccountProperties
 import com.baldystudios.androidjetpackmviadvanced.models.AuthToken
 import com.baldystudios.androidjetpackmviadvanced.persistence.AccountPropertiesDao
@@ -29,8 +28,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-@FlowPreview
-@AuthScope
 class AuthRepositoryImpl
 @Inject
 constructor(
@@ -117,7 +114,7 @@ constructor(
         else{
             Log.d(TAG, "emitting error: ${loginFieldErrors}")
             emit(
-                buildError(
+                buildError<AuthViewState>(
                     loginFieldErrors,
                     UIComponentType.Dialog(),
                     stateEvent
@@ -213,7 +210,7 @@ constructor(
         }
         else{
             emit(
-                buildError(
+                buildError<AuthViewState>(
                     registrationFieldErrors,
                     UIComponentType.Dialog(),
                     stateEvent

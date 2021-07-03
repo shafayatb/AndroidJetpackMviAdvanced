@@ -1,8 +1,6 @@
 package com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog
 
 import android.net.Uri
-import androidx.lifecycle.viewModelScope
-import com.baldystudios.androidjetpackmviadvanced.di.main.MainScope
 import com.baldystudios.androidjetpackmviadvanced.repository.main.CreateBlogRepositoryImpl
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import com.baldystudios.androidjetpackmviadvanced.ui.BaseViewModel
@@ -11,18 +9,16 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.Crea
 import com.baldystudios.androidjetpackmviadvanced.ui.main.create_blog.state.CreateBlogViewState.NewBlogFields
 import com.baldystudios.androidjetpackmviadvanced.util.*
 import com.baldystudios.androidjetpackmviadvanced.util.ErrorHandling.Companion.INVALID_STATE_EVENT
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import javax.inject.Inject
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
-@FlowPreview
-@MainScope
+@HiltViewModel
 class CreateBlogViewModel
 @Inject
 constructor(
@@ -65,7 +61,7 @@ constructor(
                 else -> {
                     flow {
                         emit(
-                            DataState.error(
+                            DataState.error<CreateBlogViewState>(
                                 response = Response(
                                     message = INVALID_STATE_EVENT,
                                     uiComponentType = UIComponentType.None(),

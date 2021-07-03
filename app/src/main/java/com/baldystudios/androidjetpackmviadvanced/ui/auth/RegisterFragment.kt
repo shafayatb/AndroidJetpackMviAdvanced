@@ -5,27 +5,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.baldystudios.androidjetpackmviadvanced.R
-import com.baldystudios.androidjetpackmviadvanced.di.auth.AuthScope
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.AuthStateEvent.RegisterAttemptEvent
 import com.baldystudios.androidjetpackmviadvanced.ui.auth.state.RegistrationFields
 import kotlinx.android.synthetic.main.fragment_register.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
  */
-@FlowPreview
-@ExperimentalCoroutinesApi
-@AuthScope
-class RegisterFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory
-) : BaseAuthFragment(R.layout.fragment_register, viewModelFactory) {
+class RegisterFragment : BaseAuthFragment(R.layout.fragment_register) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -3,7 +3,6 @@ package com.baldystudios.androidjetpackmviadvanced.ui.main.account
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.baldystudios.androidjetpackmviadvanced.R
 import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.ACCOUNT_VIEW_STATE_BUNDLE_KEY
@@ -12,17 +11,8 @@ import com.baldystudios.androidjetpackmviadvanced.ui.main.account.state.AccountV
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.RESPONSE_PASSWORD_UPDATE_SUCCESS
 import kotlinx.android.synthetic.main.fragment_change_password.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-class ChangePasswordFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory
-) : BaseAccountFragment(R.layout.fragment_change_password, viewModelFactory) {
+class ChangePasswordFragment : BaseAccountFragment(R.layout.fragment_change_password) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +50,7 @@ constructor(
 
             stateMessage?.let {
 
-                if(stateMessage.response.message.equals(RESPONSE_PASSWORD_UPDATE_SUCCESS)){
+                if (stateMessage.response.message.equals(RESPONSE_PASSWORD_UPDATE_SUCCESS)) {
                     uiCommunicationListener.hideSoftKeyboard()
                     findNavController().popBackStack()
                 }

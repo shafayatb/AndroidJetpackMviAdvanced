@@ -8,13 +8,18 @@ import com.baldystudios.androidjetpackmviadvanced.repository.main.*
 import com.baldystudios.androidjetpackmviadvanced.session.SessionManager
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.FlowPreview
 import retrofit2.Retrofit
+import javax.inject.Singleton
 
+@FlowPreview
 @Module
+@InstallIn(SingletonComponent::class)
 object MainModule {
 
-    @JvmStatic
-    @MainScope
+    @Singleton
     @Provides
     fun provideOpenApiMainService(retrofitBuilder: Retrofit.Builder): OpenApiMainService {
         return retrofitBuilder
@@ -22,8 +27,7 @@ object MainModule {
             .create(OpenApiMainService::class.java)
     }
 
-    @JvmStatic
-    @MainScope
+    @Singleton
     @Provides
     fun provideAccountRepository(
         openApiMainService: OpenApiMainService,
@@ -37,15 +41,13 @@ object MainModule {
         )
     }
 
-    @JvmStatic
-    @MainScope
+    @Singleton
     @Provides
     fun provideBlogPostDao(db: AppDatabase): BlogPostDao {
         return db.getBlogPostDao()
     }
 
-    @JvmStatic
-    @MainScope
+    @Singleton
     @Provides
     fun provideBlogRepository(
         openApiMainService: OpenApiMainService,
@@ -55,8 +57,7 @@ object MainModule {
         return BlogRepositoryImpl(openApiMainService, blogPostDao, sessionManager)
     }
 
-    @JvmStatic
-    @MainScope
+    @Singleton
     @Provides
     fun provideCreateBlogRepository(
         openApiMainService: OpenApiMainService,

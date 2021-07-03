@@ -12,8 +12,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 
-@FlowPreview
-@ExperimentalCoroutinesApi
 abstract class BaseViewModel<ViewState> : ViewModel()
 {
     val TAG: String = "AppDebug"

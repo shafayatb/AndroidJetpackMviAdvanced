@@ -23,9 +23,12 @@ import com.baldystudios.androidjetpackmviadvanced.util.Response
 import com.baldystudios.androidjetpackmviadvanced.util.StateMessageCallback
 import com.baldystudios.androidjetpackmviadvanced.util.SuccessHandling.Companion.SUCCESS_BLOG_UPDATED
 import com.baldystudios.androidjetpackmviadvanced.util.UIComponentType
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.RequestOptions
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_update_blog.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -35,14 +38,11 @@ import okhttp3.RequestBody
 import java.io.File
 import javax.inject.Inject
 
-@FlowPreview
-@ExperimentalCoroutinesApi
-class UpdateBlogFragment
-@Inject
-constructor(
-    viewModelFactory: ViewModelProvider.Factory,
-    private val requestManager: RequestManager
-) : BaseBlogFragment(R.layout.fragment_update_blog, viewModelFactory) {
+@AndroidEntryPoint
+class UpdateBlogFragment : BaseBlogFragment(R.layout.fragment_update_blog) {
+
+    @Inject
+    lateinit var options: RequestOptions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,7 +185,8 @@ constructor(
 
     fun setBlogProperties(title: String?, body: String?, image: Uri?) {
         image?.let {
-            requestManager
+            Glide.with(this)
+                .setDefaultRequestOptions(options)
                 .load(it)
                 .into(blog_image)
         }
