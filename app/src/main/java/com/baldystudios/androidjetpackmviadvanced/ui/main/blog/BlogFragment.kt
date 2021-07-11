@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -259,8 +260,17 @@ class BlogFragment : BaseBlogFragment(R.layout.fragment_blog),
     }
 
     override fun onItemSelected(position: Int, item: BlogPost) {
+        val navOptions = NavOptions.Builder()
+        navOptions.setEnterAnim(R.anim.slide_in_right)
+            .setExitAnim(R.anim.slide_out_left)
+            .setPopEnterAnim(R.anim.slide_out_right)
+            .setPopExitAnim(R.anim.slide_in_left)
         viewModel.setBlogPost(item)
-        findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+        findNavController().navigate(
+            R.id.action_blogFragment_to_viewBlogFragment,
+            null,
+            navOptions.build()
+        )
     }
 
     override fun restoreListPosition() {
